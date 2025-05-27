@@ -1,0 +1,30 @@
+# === Rust build artifacts ===
+/target/
+
+# === Dioxus-specific ===
+# Dioxus CLI typically builds to /dist or /static (you can update as needed)
+dist/
+static/
+
+# === Rust toolchain files ===
+**/*.rs.bk
+Cargo.lock
+
+# === IDE-specific: RustRover / JetBrains ===
+.idea/
+*.iml
+
+# === OS-specific files ===
+.DS_Store
+Thumbs.db
+
+# === Logs, backups, temp files ===
+*.log
+*.tmp
+*.bak
+*.swp
+*.swo
+
+# === Environment files (optional) ===
+# Uncomment if using dotenv or storing secrets locally
+# .env

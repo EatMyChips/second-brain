@@ -1,0 +1,6 @@
+body{
+    margin: 0;
+    padding: 5rem 10vw 0 10vw; /* controls the distance from the edge */
+    box-sizing: border-box;
+    font-family: sans-serif;
+}
