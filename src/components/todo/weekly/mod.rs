@@ -5,7 +5,7 @@ use web_sys::HtmlElement;
 use std::rc::Rc;
 use lists::*;
 
-const WEEKLY: Asset = asset!("/assets/weekly.css");
+const WEEKLY: Asset = asset!("/assets/todo/weekly/weekly.css");
 
 #[component]
 pub fn Weekly() -> Element {
@@ -50,7 +50,7 @@ fn CheckBoxes() -> Element {
 fn University() -> Element {
     rsx!{
         List {
-            id: String::from(""),
+            id: String::from("university"),
             title: String::from("University"),
         }
     }
@@ -60,7 +60,7 @@ fn University() -> Element {
 fn Personal() -> Element {
     rsx!{
         List {
-            id: String::from(""),
+            id: String::from("personal"),
             title: String::from("Personal"),
         }
     }
@@ -70,7 +70,7 @@ fn Personal() -> Element {
 fn Life() -> Element {
     rsx!{
         List {
-            id: String::from(""),
+            id: String::from("life"),
             title: String::from("Life"),
         }
     }

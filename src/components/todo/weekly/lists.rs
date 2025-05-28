@@ -1,8 +1,10 @@
 use std::rc::Rc;
 use dioxus::prelude::*;
 use web_sys::HtmlElement;
+use crate::backend::*;
 
-const LISTS: Asset = asset!("/assets/lists.css");
+const LISTS: Asset = asset!("/assets/todo/weekly/lists.css");
+const HEADER: Asset = asset!("/assets/todo/weekly/header.css");
 
 #[derive(PartialEq, Props, Clone)]
 pub struct ListProps {
@@ -18,7 +20,7 @@ pub fn List(props: ListProps) -> Element {
 
     rsx!{
         document::Stylesheet { href: LISTS}
-        
+
         div{
             class: "element list",
             id: props.id,
@@ -29,10 +31,11 @@ pub fn List(props: ListProps) -> Element {
                     new_task.set(String::new());
                 }
             },
-            onkeydown: move |event: Event<KeyboardData>| {
+            onkeydown: move |event: Event<KeyboardData>| async move {
                 let key = event.data.key();
 
                 if key == Key::Enter {
+                    save_task(String::from("penis"), String::from("penis"), Some(String::from("10/01/2025")), Some(String::from("10/01/2025")), 1).await;
                     tasks.write().push(new_task.read().clone());
                     new_task.set(String::new());
                 }
@@ -86,6 +89,8 @@ struct ListHeaderProps {
 #[component]
 fn ListHeader(props: ListHeaderProps) -> Element {
     rsx!{
+        document::Stylesheet { href: HEADER}
+
         div{
             class: "header",
             h2 { {props.title} }

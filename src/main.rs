@@ -4,6 +4,8 @@ mod backend;
 use dioxus::prelude::*;
 use components::*;
 
+pub use backend::*;
+
 const GLOBAL: Asset = asset!("assets/global.css");
 
 #[derive(Routable, Clone, PartialEq)]

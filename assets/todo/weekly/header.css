@@ -1,0 +1,11 @@
+.header {
+    width: calc(100% + 4vw);
+    margin-left: -2vw;
+    margin-bottom: 1vh;
+    border-bottom: 0.2rem solid #000000;
+}
+
+.header h2 {
+    margin-left: 2vw;
+    margin-bottom: 0;
+}

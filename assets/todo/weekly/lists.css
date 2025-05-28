@@ -1,7 +1,7 @@
 .element{
     flex: 0 1 calc((100% - 2 * 2vw) / 3);
     background-color: #a3a2a2;
-    padding: 2vw;
+    padding: 0 2vw;
     border-radius: 3rem;
     height: auto;
     min-height: 30vh;

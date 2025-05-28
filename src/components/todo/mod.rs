@@ -2,7 +2,7 @@ pub(crate) mod weekly;
 
 use dioxus::prelude::*;
 
-const TODO: Asset = asset!("assets/todo.css");
+const TODO: Asset = asset!("assets/todo/todo.css");
 
 #[component]
 pub fn Header() -> Element{
