@@ -1,52 +1,8 @@
 .weekly-lists{
     display: flex;
-    width: 100%;
-    min-height: 60vh;
     flex-wrap: wrap;
-}
-
-.list{
-    flex: 1; /* ensures all buttons grow equally */
-    background-color: #a3a2a2;
-    margin: 2vh 2vw;
-    padding: 2vw;
-    border-radius: 3rem;
-}
-
-#todays-tasks{
-    width: 57.5%;
-    min-height: 30vh;
+    gap: 2vh 2vw;
     height: auto;
-    padding: 2%;
-}
+    margin-top: 2vh;
 
-.list:focus-within{
-    border: 0.2rem solid #000000;
-}
-
-.list:focus-within input {
-    display: block;
-}
-
-.list input {
-    display: none;
-    accent-color: black;
-}
-
-.tasks{
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    padding: 0;
-}
-
-.task{
-    width: 100%;
-    min-height: 3vh;
-    height: auto;
-    padding: 0;
-    margin: 0;
-    border: none;
-    background-color: #ffffff00;
-    text-wrap: stable;
 }
