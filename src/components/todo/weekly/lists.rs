@@ -35,7 +35,7 @@ pub fn List(props: ListProps) -> Element {
                 let key = event.data.key();
 
                 if key == Key::Enter {
-                    save_task(String::from("penis"), String::from("penis"), Some(String::from("10/01/2025")), Some(String::from("10/01/2025")), 1).await;
+                    post_tasks(new_task.read().clone(), String::from("penis"), Some(String::from("10/01/2025")), Some(String::from("10/01/2025")), 1).await.expect("Failed to post task");
                     tasks.write().push(new_task.read().clone());
                     new_task.set(String::new());
                 }

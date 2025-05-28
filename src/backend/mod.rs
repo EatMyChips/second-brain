@@ -11,12 +11,12 @@ thread_local! {
         conn.execute_batch(
             "PRAGMA foreign_keys = ON;
 
-            CREATE TABLE containers (
+            CREATE TABLE IF NOT EXISTS containers (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 title TEXT NOT NULL
             );
 
-            CREATE TABLE tasks (
+            CREATE TABLE IF NOT EXISTS tasks (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 title TEXT NOT NULL,
                 info TEXT NOT NULL,
@@ -27,7 +27,7 @@ thread_local! {
             );
 
             -- Insert sample data
-            INSERT INTO containers (title) VALUES
+            INSERT OR IGNORE  INTO containers (title) VALUES
             ('Work'),
             ('Personal'),
             ('Fitness'),
@@ -41,7 +41,7 @@ thread_local! {
 
 
 #[server]
-pub async fn save_task(
+pub async fn post_tasks(
     title: String,
     info: String,
     weeks: Option<String>, // Dates are optional
