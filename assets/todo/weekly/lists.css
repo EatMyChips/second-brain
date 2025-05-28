@@ -51,3 +51,12 @@
     background-color: #ffffff00;
     text-wrap: stable;
 }
+
+#todays-tasks .tasks{
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+#todays-tasks .task{
+    width: 50%;
+}
