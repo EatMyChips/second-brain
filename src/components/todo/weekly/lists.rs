@@ -1,6 +1,7 @@
 use std::rc::Rc;
 use dioxus::prelude::*;
-use crate::backend::{Task, TaskInput, post_tasks, get_tasks};
+use crate::backend::*;
+use crate::backend::props::{Task, TaskInput};
 
 const LISTS: Asset = asset!("/assets/todo/weekly/lists.css");
 const HEADER: Asset = asset!("/assets/todo/weekly/header.css");
@@ -22,10 +23,16 @@ pub fn List(props: ListProps) -> Element {
 
     use_effect({
         let mut tasks = tasks.clone();
+        let id = props.id.clone();
         move || {
+            let id = id.clone();
             spawn(async move {
-                if let Ok(fetched) = get_tasks(1).await {
+                if let Ok(fetched) = get_tasks(id).await {
+                    println!("Fetched tasks");
                     tasks.set(fetched);
+                }
+                else {
+                    println!("Failed to fetch tasks");
                 }
             });
         }
@@ -49,6 +56,7 @@ pub fn List(props: ListProps) -> Element {
                 new_task: new_task.clone(),
                 input_element: input_element.clone(),
                 tasks: tasks.clone(), // ✅ Pass signal
+                id: props.id.clone(),
             }
         }
     }
@@ -59,6 +67,7 @@ pub struct TasksProps {
     pub new_task: Signal<String>,
     pub input_element: Signal<Option<Rc<MountedData>>>,
     pub tasks: Signal<Vec<Task>>,
+    pub id: String,
 }
 
 #[component]
@@ -83,26 +92,29 @@ pub fn Tasks(props: TasksProps) -> Element {
                 value: new_task,
                 oninput: move |event| new_task.set(event.value()),
                 onmounted: move |element| input_element.set(Some(element.data())),
-                onkeydown: move |event: Event<KeyboardData>| async move {
-                let key = event.data.key();
+                onkeydown: move |event: Event<KeyboardData>| {
+                    let id = props.id.clone();
+                    async move {
+                        let key = event.data.key();
 
-                if key == Key::Enter {
+                        if key == Key::Enter {
 
-                    let pass_data: TaskInput = TaskInput {
-                        title: "".to_string(),
-                        info: new_task.read().clone(),
-                        week: None,
-                        day: None,
-                        container_id: 1,
-                    };
+                            let pass_data: TaskInput = TaskInput {
+                                title: "".to_string(),
+                                info: new_task.read().clone(),
+                                week: None,
+                                day: None,
+                                container_id: 0,
+                            };
 
-                    tasks.write().push(post_tasks(pass_data).await.expect("Failed to post task").unwrap());
-                    new_task.set(String::new());
-                }
-            },
+                            tasks.write().push(post_tasks(id, pass_data).await.expect("Failed to post task").unwrap());
+                            new_task.set(String::new());
+                        }
+                    }
+                },
             },
         }
-    }.clone().clone().clone()
+    }
 }
 
 #[derive(PartialEq, Props, Clone)]
