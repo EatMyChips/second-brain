@@ -1,7 +1,6 @@
 use std::rc::Rc;
 use dioxus::prelude::*;
-use web_sys::HtmlElement;
-use crate::backend::*;
+use crate::backend::{Task, TaskInput, post_tasks, get_tasks};
 
 const LISTS: Asset = asset!("/assets/todo/weekly/lists.css");
 const HEADER: Asset = asset!("/assets/todo/weekly/header.css");
@@ -14,9 +13,23 @@ pub struct ListProps {
 
 #[component]
 pub fn List(props: ListProps) -> Element {
+    // Task signals
+    let mut tasks = use_signal(|| Vec::<Task>::new());
     let mut new_task = use_signal(|| "".to_string());
+
+    // Element signals
     let mut input_element: Signal<Option<Rc<MountedData>>> = use_signal(|| None);
-    let mut tasks: Signal<Vec<String>> = use_signal(|| vec![]);
+
+    use_effect({
+        let mut tasks = tasks.clone();
+        move || {
+            spawn(async move {
+                if let Ok(fetched) = get_tasks(1).await {
+                    tasks.set(fetched);
+                }
+            });
+        }
+    });
 
     rsx!{
         document::Stylesheet { href: LISTS}
@@ -28,15 +41,6 @@ pub fn List(props: ListProps) -> Element {
             onfocus: move |_| async move {
                 if let Some(header) = input_element() {
                     let _ = header.set_focus(true).await;
-                    new_task.set(String::new());
-                }
-            },
-            onkeydown: move |event: Event<KeyboardData>| async move {
-                let key = event.data.key();
-
-                if key == Key::Enter {
-                    post_tasks(new_task.read().clone(), String::from("penis"), Some(String::from("10/01/2025")), Some(String::from("10/01/2025")), 1).await.expect("Failed to post task");
-                    tasks.write().push(new_task.read().clone());
                     new_task.set(String::new());
                 }
             },
@@ -54,20 +58,23 @@ pub fn List(props: ListProps) -> Element {
 pub struct TasksProps {
     pub new_task: Signal<String>,
     pub input_element: Signal<Option<Rc<MountedData>>>,
-    pub tasks: Signal<Vec<String>>,
+    pub tasks: Signal<Vec<Task>>,
 }
 
 #[component]
 pub fn Tasks(props: TasksProps) -> Element {
-    let tasks = props.tasks;
-    let mut input_element = props.input_element.clone();
+    // Task signals
+    let mut tasks = props.tasks;
     let mut new_task = props.new_task.clone();
+
+    // Element signals
+    let mut input_element = props.input_element.clone();
 
     rsx!{
         div{
             class: "tasks",
-            for task in tasks() {
-                h3 { class: "task", {task} }
+            for task in tasks.read().clone() {
+                h3 { class: "task", {task.info} }
             }
 
             input{
@@ -76,9 +83,26 @@ pub fn Tasks(props: TasksProps) -> Element {
                 value: new_task,
                 oninput: move |event| new_task.set(event.value()),
                 onmounted: move |element| input_element.set(Some(element.data())),
+                onkeydown: move |event: Event<KeyboardData>| async move {
+                let key = event.data.key();
+
+                if key == Key::Enter {
+
+                    let pass_data: TaskInput = TaskInput {
+                        title: "".to_string(),
+                        info: new_task.read().clone(),
+                        week: None,
+                        day: None,
+                        container_id: 1,
+                    };
+
+                    tasks.write().push(post_tasks(pass_data).await.expect("Failed to post task").unwrap());
+                    new_task.set(String::new());
+                }
+            },
             },
         }
-    }
+    }.clone().clone().clone()
 }
 
 #[derive(PartialEq, Props, Clone)]
