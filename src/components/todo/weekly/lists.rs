@@ -75,6 +75,7 @@ pub fn Tasks(props: TasksProps) -> Element {
     // Task signals
     let mut tasks = props.tasks;
     let mut new_task = props.new_task.clone();
+    let mut is_input = use_signal(|| false);
 
     // Element signals
     let mut input_element = props.input_element.clone();
@@ -83,7 +84,28 @@ pub fn Tasks(props: TasksProps) -> Element {
         div{
             class: "tasks",
             for task in tasks.read().clone() {
-                h3 { class: "task", {task.info} }
+                h3 {
+                    class: "task",
+                    {task.info.clone()}
+                }
+                input {
+                    class: "task",
+                    value: task.info.clone(),
+                    tabindex: "0",
+                    onkeydown: move |event: Event<KeyboardData>| {
+                        async move {
+                            let key = event.data.key();
+
+                            if key == Key::Delete {
+                                delete_tasks(task.id.clone()).await.expect("Failed to delete task");
+                                tasks.write().retain(|t| t.id != task.id);
+                            }
+                            if key == Key::Enter {
+
+                            }
+                        }
+                    },
+                }
             }
 
             input{

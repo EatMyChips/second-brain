@@ -24,6 +24,8 @@ Thumbs.db
 *.bak
 *.swp
 *.swo
+
+# === Database files ===
 todo.db
 
 # === Environment files (optional) ===

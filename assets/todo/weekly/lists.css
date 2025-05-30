@@ -29,9 +29,15 @@
     display: block;
 }
 
+.list:focus-within h3 {
+    display: none;
+}
+
+
 .list input {
     display: none;
     accent-color: black;
+    font-size: 18px;
 }
 
 .tasks{
