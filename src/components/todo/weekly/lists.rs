@@ -1,7 +1,9 @@
 use std::rc::Rc;
+use chrono::{DateTime, Local};
 use dioxus::prelude::*;
 use crate::backend::*;
 use crate::backend::props::{Task, TaskInput};
+use crate::components::todo::weekly::TimeState;
 
 const LISTS: Asset = asset!("/assets/todo/weekly/lists.css");
 const HEADER: Asset = asset!("/assets/todo/weekly/header.css");
@@ -17,24 +19,26 @@ pub fn List(props: ListProps) -> Element {
     // Task signals
     let mut tasks = use_signal(|| Vec::<Task>::new());
     let mut new_task = use_signal(|| "".to_string());
+    let id = props.id.clone();
+    let selected_week = use_context::<TimeState>().selected_week;
 
     // Element signals
-    let mut input_element: Signal<Option<Rc<MountedData>>> = use_signal(|| None);
+    let input_element: Signal<Option<Rc<MountedData>>> = use_signal(|| None);
 
-    use_effect({
-        let mut tasks = tasks.clone();
+    let _ = use_resource(move || {
         let id = props.id.clone();
-        move || {
-            let id = id.clone();
-            spawn(async move {
-                if let Ok(fetched) = get_tasks(id).await {
-                    println!("Fetched tasks");
+        let selected_week_value = selected_week.clone();
+        let tasking = new_task.clone();
+
+        async move {
+            match get_tasks(id, selected_week_value.read().format("%d/%m/%Y").to_string()).await {
+                Ok(fetched) => {
                     tasks.set(fetched);
+                },
+                Err(_) => {
+                    log::error!("Failed to get data");
                 }
-                else {
-                    println!("Failed to fetch tasks");
-                }
-            });
+            }
         }
     });
 
@@ -43,7 +47,7 @@ pub fn List(props: ListProps) -> Element {
 
         div{
             class: "element list",
-            id: props.id,
+            id: id,
             tabindex: "0",
             onfocus: move |_| async move {
                 if let Some(header) = input_element() {
@@ -56,7 +60,7 @@ pub fn List(props: ListProps) -> Element {
                 new_task: new_task.clone(),
                 input_element: input_element.clone(),
                 tasks: tasks.clone(), // ✅ Pass signal
-                id: props.id.clone(),
+                id: id.clone(),
             }
         }
     }
@@ -74,7 +78,8 @@ pub struct TasksProps {
 pub fn Tasks(props: TasksProps) -> Element {
     // Task signals
     let mut tasks = props.tasks;
-    let mut new_task = props.new_task.clone();
+    let mut new_task = props.new_task;
+    let mut update_task = use_signal(|| "".to_string());
     let mut is_input = use_signal(|| false);
 
     // Element signals
@@ -92,7 +97,9 @@ pub fn Tasks(props: TasksProps) -> Element {
                     class: "task",
                     value: task.info.clone(),
                     tabindex: "0",
+                    oninput: move |event| update_task.set(event.value()),
                     onkeydown: move |event: Event<KeyboardData>| {
+                        let task = task.clone();
                         async move {
                             let key = event.data.key();
 
@@ -101,6 +108,17 @@ pub fn Tasks(props: TasksProps) -> Element {
                                 tasks.write().retain(|t| t.id != task.id);
                             }
                             if key == Key::Enter {
+
+                                let pass_data: TaskInput = TaskInput {
+                                title: task.title,
+                                info: update_task.read().clone(),
+                                week: task.week,
+                                day: task.day,
+                                container_id: task.container_id,
+                            };
+
+                            put_tasks(task.id.clone(), pass_data).await.expect("Failed to post task");
+                            update_task.set(String::new());
 
                             }
                         }
@@ -124,7 +142,7 @@ pub fn Tasks(props: TasksProps) -> Element {
                             let pass_data: TaskInput = TaskInput {
                                 title: "".to_string(),
                                 info: new_task.read().clone(),
-                                week: None,
+                                week: Some(use_context::<TimeState>().selected_week.read().format("%d/%m/%Y").to_string()),
                                 day: None,
                                 container_id: 0,
                             };

@@ -80,16 +80,16 @@ pub async fn delete_tasks(id: i32) -> Result<(), ServerFnError> {
 }
 
 #[server]
-pub async fn get_tasks(container_title: String) -> Result<Vec<Task>, ServerFnError> {
+pub async fn get_tasks(container_title: String, current_week: String) -> Result<Vec<Task>, ServerFnError> {
     DB.with(|f| {
         // Use JOIN to fetch tasks based on the container title
         let mut stmt = f.prepare(
             "SELECT t.id, t.title, t.info, t.weeks, t.days, t.container_id
              FROM tasks t
              JOIN containers c ON t.container_id = c.id
-             WHERE c.title = ?1"
+             WHERE c.title = ?1 AND t.weeks = ?2"
         )?;
-        let mut rows = stmt.query(params![container_title])?;
+        let mut rows = stmt.query(params![container_title, current_week])?;
 
         let mut tasks = Vec::new();
 
