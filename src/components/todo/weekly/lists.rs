@@ -1,9 +1,8 @@
 use std::rc::Rc;
-use chrono::{DateTime, Local};
 use dioxus::prelude::*;
 use crate::backend::*;
 use crate::backend::props::{Task, TaskInput};
-use crate::components::todo::weekly::TimeState;
+use super::TimeState;
 
 const LISTS: Asset = asset!("/assets/todo/weekly/lists.css");
 const HEADER: Asset = asset!("/assets/todo/weekly/header.css");
@@ -96,7 +95,7 @@ pub fn Tasks(props: TasksProps) -> Element {
                 }
                 input {
                     class: "task",
-                    value: task.info.clone(),
+                    value: format!("{}~{}", task.title, task.info),
                     tabindex: "0",
                     oninput: move |event| update_task.set(event.value()),
                     onkeydown: move |event: Event<KeyboardData>| {
@@ -109,10 +108,11 @@ pub fn Tasks(props: TasksProps) -> Element {
                                 tasks.write().retain(|t| t.id != task.id);
                             }
                             if key == Key::Enter {
+                                let mut task_data = string_split(update_task.read().clone());
 
                                 let pass_data: TaskInput = TaskInput {
-                                title: task.title,
-                                info: update_task.read().clone(),
+                                title: task_data.remove(0),
+                                info: task_data.remove(0),
                                 week: task.week,
                                 day: task.day,
                                 container_id: task.container_id,
