@@ -21,7 +21,7 @@ pub fn WeeklyTaskSwitcher() -> Element{
         h3 {
             "{formatted_date} - {week_end}"
         }
-        if *selected_week.read() == *current_week.read() {
+        if formatted_date.to_string() == *current_week.read().format("%d/%m/%Y").to_string() {
             h3 {
                 "(current)"
             }
@@ -30,7 +30,6 @@ pub fn WeeklyTaskSwitcher() -> Element{
             onclick: move |_| {
                 let current = *selected_week.read();
                 selected_week.set(current + Duration::days(7));
-                log::info!("{}", selected_week.read());
             },
             "->",
         }

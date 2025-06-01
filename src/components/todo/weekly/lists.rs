@@ -19,19 +19,21 @@ pub fn List(props: ListProps) -> Element {
     // Task signals
     let mut tasks = use_signal(|| Vec::<Task>::new());
     let mut new_task = use_signal(|| "".to_string());
-    let id = props.id.clone();
+
+    // Date signals
     let selected_week = use_context::<TimeState>().selected_week;
+
+    // Props data
+    let id = props.id.clone();
 
     // Element signals
     let input_element: Signal<Option<Rc<MountedData>>> = use_signal(|| None);
 
     let _ = use_resource(move || {
         let id = props.id.clone();
-        let selected_week_value = selected_week.clone();
-        let tasking = new_task.clone();
 
         async move {
-            match get_tasks(id, selected_week_value.read().format("%d/%m/%Y").to_string()).await {
+            match get_tasks(id, selected_week.read().format("%d/%m/%Y").to_string()).await {
                 Ok(fetched) => {
                     tasks.set(fetched);
                 },
@@ -80,7 +82,6 @@ pub fn Tasks(props: TasksProps) -> Element {
     let mut tasks = props.tasks;
     let mut new_task = props.new_task;
     let mut update_task = use_signal(|| "".to_string());
-    let mut is_input = use_signal(|| false);
 
     // Element signals
     let mut input_element = props.input_element.clone();
@@ -138,10 +139,11 @@ pub fn Tasks(props: TasksProps) -> Element {
                         let key = event.data.key();
 
                         if key == Key::Enter {
+                            let mut task_data = string_split(new_task.read().clone());
 
                             let pass_data: TaskInput = TaskInput {
-                                title: "".to_string(),
-                                info: new_task.read().clone(),
+                                title: task_data.remove(0),
+                                info: task_data.remove(0),
                                 week: Some(use_context::<TimeState>().selected_week.read().format("%d/%m/%Y").to_string()),
                                 day: None,
                                 container_id: 0,
@@ -171,5 +173,16 @@ fn ListHeader(props: ListHeaderProps) -> Element {
             class: "header",
             h2 { {props.title} }
         }
+    }
+}
+
+fn string_split(input: String) -> Vec<String> {
+    if input.contains('~') {
+        input
+            .split('~')
+            .map(|s| s.to_string())
+            .collect()
+    } else {
+        vec!["".to_string(), input]
     }
 }
