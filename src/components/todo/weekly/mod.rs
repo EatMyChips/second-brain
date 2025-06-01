@@ -13,26 +13,34 @@ const WEEKLY: Asset = asset!("/assets/todo/weekly/weekly.css");
 #[derive(Clone, Copy)]
 pub struct TimeState {
     selected_week: Signal<DateTime<Local>>,
+    selected_day: Signal<DateTime<Local>>,
     current_week: Signal<DateTime<Local>>,
+    current_day: Signal<DateTime<Local>>,
 }
 
 #[component]
 pub fn Weekly() -> Element {
-    let selected_week = use_signal(|| {
-        let dt: DateTime<Local> = Local::now();
+
+    let current_day = use_signal(|| Local::now() );
+
+
+    let selected_day = use_signal(|| *current_day.read() );
+
+    let current_week = use_signal(|| {
+        let dt: DateTime<Local> = *current_day.read();
         let weekday: u32 = dt.weekday().num_days_from_monday();
         dt - Duration::days(weekday.into())
     });
 
-    let current_week = use_signal(|| {
-        let dt: DateTime<Local> = Local::now();
-        let weekday: u32 = dt.weekday().num_days_from_monday();
-        dt - Duration::days(weekday.into())
-    });
+    let selected_week = use_signal(|| *current_week.read() );
+
+
 
     use_context_provider(|| TimeState {
         selected_week,
+        selected_day,
         current_week,
+        current_day,
     });
 
     rsx!{

@@ -1,8 +1,10 @@
 .header {
+    display: flex;
     width: calc(100% + 4vw);
     margin-left: -2vw;
     margin-bottom: 1vh;
     border-bottom: 0.2rem solid #000000;
+    gap: 2vw;
 }
 
 .header h2 {

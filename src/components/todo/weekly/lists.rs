@@ -2,6 +2,7 @@ use std::rc::Rc;
 use dioxus::prelude::*;
 use crate::backend::*;
 use crate::backend::props::{Task, TaskInput};
+use crate::components::todo::weekly::date_features::DailyTaskSwitcher;
 use super::TimeState;
 
 const LISTS: Asset = asset!("/assets/todo/weekly/lists.css");
@@ -56,7 +57,11 @@ pub fn List(props: ListProps) -> Element {
                     new_task.set(String::new());
                 }
             },
-            ListHeader { title: props.title }
+            ListHeader {
+                title: props.title,
+                id: id.clone(),
+            }
+
             Tasks {
                 new_task: new_task.clone(),
                 input_element: input_element.clone(),
@@ -90,7 +95,7 @@ pub fn Tasks(props: TasksProps) -> Element {
             class: "tasks",
             for task in tasks.read().clone() {
                 h3 {
-                    class: "task",
+                    class: "task text",
                     {task.info.clone()}
                 }
                 input {
@@ -162,6 +167,7 @@ pub fn Tasks(props: TasksProps) -> Element {
 #[derive(PartialEq, Props, Clone)]
 struct ListHeaderProps {
     title: String,
+    id: String,
 }
 
 #[component]
@@ -172,6 +178,10 @@ fn ListHeader(props: ListHeaderProps) -> Element {
         div{
             class: "header",
             h2 { {props.title} }
+            
+            if props.id == "todays-tasks"{
+                DailyTaskSwitcher { }
+            }
         }
     }
 }

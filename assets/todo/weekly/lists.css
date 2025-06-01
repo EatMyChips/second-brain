@@ -29,7 +29,7 @@
     display: block;
 }
 
-.list:focus-within h3 {
+.list:focus-within .text {
     display: none;
 }
 
