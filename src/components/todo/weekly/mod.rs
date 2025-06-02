@@ -20,21 +20,18 @@ pub struct TimeState {
 
 #[component]
 pub fn Weekly() -> Element {
-
+    // Time signals
     let current_day = use_signal(|| Local::now() );
-
-
     let selected_day = use_signal(|| *current_day.read() );
-
     let current_week = use_signal(|| {
         let dt: DateTime<Local> = *current_day.read();
         let weekday: u32 = dt.weekday().num_days_from_monday();
         dt - Duration::days(weekday.into())
     });
-
     let selected_week = use_signal(|| *current_week.read() );
 
-
+    // Page state signals
+    let mut edit_mode = use_signal(|| false);
 
     use_context_provider(|| TimeState {
         selected_week,

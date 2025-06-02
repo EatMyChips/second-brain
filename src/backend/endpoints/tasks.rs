@@ -6,13 +6,12 @@ use rusqlite::{params, Connection, ToSql, Result as SqlResult};
 use super::super::init_database::DB;
 use super::super::props::{Task, TaskInput};
 
-
 #[server]
-pub async fn post_tasks(container_title: String, task: TaskInput) -> Result<Option<Task>, ServerFnError> {
+pub async fn post_tasks(task: TaskInput) -> Result<Option<i32>, ServerFnError> {
     DB.with(|f| {
         // First, look up the container ID
         let mut stmt = f.prepare("SELECT id FROM containers WHERE title = ?1")?;
-        let mut rows = stmt.query(params![container_title])?;
+        let mut rows = stmt.query(params![task.container_id])?;
 
         let container_id = if let Some(row) = rows.next()? {
             row.get::<_, i32>(0)?
@@ -31,30 +30,12 @@ pub async fn post_tasks(container_title: String, task: TaskInput) -> Result<Opti
             ],
         )?;
 
-        let mut stmt = f.prepare(
-            "SELECT id, title, info, weeks, days, container_id FROM tasks WHERE id = ?1"
-        )?;
-        let mut rows = stmt.query((f.last_insert_rowid(),))?;
-
-
-        if let Some(row) = rows.next()? {
-            let task = Task {
-                id: row.get(0)?,
-                title: row.get(1)?,
-                info: row.get(2)?,
-                week: row.get(3)?,
-                day: row.get(4)?,
-                container_id: row.get(5)?,
-            };
-            Ok(Some(task))
-        } else {
-            Ok(None)
-        }
+        Ok(Some(f.last_insert_rowid() as i32))
     })
 }
 
 #[server]
-pub async fn put_tasks(id: i32, task: TaskInput) -> Result<(), ServerFnError> {
+pub async fn put_tasks(task: Task) -> Result<(), ServerFnError> {
     DB.with(|f| {
         f.execute(
             "UPDATE tasks SET title = ?1, info = ?2, weeks = ?3, days = ?4, container_id = ?5 WHERE id = ?6",
@@ -64,7 +45,7 @@ pub async fn put_tasks(id: i32, task: TaskInput) -> Result<(), ServerFnError> {
                 task.week.as_deref(),
                 task.day.as_deref(),
                 task.container_id,
-                id,
+                task.id,
             ],
         )?;
         Ok(())
@@ -106,5 +87,30 @@ pub async fn get_tasks(container_title: String, current_week: String) -> Result<
         }
 
         Ok(tasks)
+    })
+}
+
+#[server]
+pub async fn get_task(id: i32) -> Result<Option<Task>, ServerFnError> {
+    DB.with(|f| {
+        let mut stmt = f.prepare(
+            "SELECT id, title, info, weeks, days, container_id
+             FROM tasks
+             WHERE id = ?1"
+        )?;
+        let mut rows = stmt.query(params![id])?;
+
+        if let Some(row) = rows.next()? {
+            let task = Task {
+                id: row.get(0)?,
+                title: row.get(1)?,
+                info: row.get(2)?,
+                week: row.get(3)?,
+                day: row.get(4)?,
+                container_id: row.get(5)?,
+            };
+            return Ok(Some(task));
+        }
+        Ok(None)
     })
 }

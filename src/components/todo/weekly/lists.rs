@@ -35,14 +35,7 @@ pub fn List(props: ListProps) -> Element {
         let trigger = trigger_get.read();
 
         async move {
-            match get_tasks(id, selected_week.read().format("%d/%m/%Y").to_string()).await {
-                Ok(fetched) => {
-                    tasks.set(fetched);
-                },
-                Err(_) => {
-                    log::error!("Failed to get data");
-                }
-            }
+            tasks.set(Task::get_all(id, selected_week.read().format("%d/%m/%Y").to_string()).await);
         }
     });
 
@@ -119,21 +112,12 @@ pub fn Tasks(props: TasksProps) -> Element {
                             let key = event.data.key();
 
                             if key == Key::Delete {
-                                delete_tasks(task.id.clone()).await.expect("Failed to delete task");
+                                &task.delete().await;
                                 tasks.write().retain(|t| t.id != task.id);
                             }
                             if key == Key::Enter {
                                 let mut task_data = string_split(update_task.read().clone());
-
-                                let pass_data: TaskInput = TaskInput {
-                                title: task_data.remove(0),
-                                info: task_data.remove(0),
-                                week: task.week,
-                                day: task.day,
-                                container_id: task.container_id,
-                                };
-
-                                put_tasks(task.id.clone(), pass_data).await.expect("Failed to post task");
+                                task.update(task_data.remove(0), task_data.remove(0)).await;
                                 let val = *trigger_get.read();
                                 trigger_get.set(val + 1);
                                 update_task.set(String::new());
@@ -162,10 +146,10 @@ pub fn Tasks(props: TasksProps) -> Element {
                                 info: task_data.remove(0),
                                 week: Some(use_context::<TimeState>().selected_week.read().format("%d/%m/%Y").to_string()),
                                 day: None,
-                                container_id: 0,
+                                container_id: id,
                             };
 
-                            tasks.write().push(post_tasks(id, pass_data).await.expect("Failed to post task").unwrap());
+                            tasks.write().push(Task::new(pass_data).await);
                             new_task.set(String::new());
                         }
                     }
