@@ -48,6 +48,8 @@
 }
 
 .task{
+    display: flex;
+    align-content: center;
     width: 100%;
     min-height: 3vh;
     height: auto;

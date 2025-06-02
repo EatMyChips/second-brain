@@ -19,6 +19,7 @@ pub fn List(props: ListProps) -> Element {
     // Task signals
     let mut tasks = use_signal(|| Vec::<Task>::new());
     let mut new_task = use_signal(|| "".to_string());
+    let mut trigger_get = use_signal(|| 0);
 
     // Date signals
     let selected_week = use_context::<TimeState>().selected_week;
@@ -31,6 +32,7 @@ pub fn List(props: ListProps) -> Element {
 
     let _ = use_resource(move || {
         let id = props.id.clone();
+        let trigger = trigger_get.read();
 
         async move {
             match get_tasks(id, selected_week.read().format("%d/%m/%Y").to_string()).await {
@@ -67,6 +69,7 @@ pub fn List(props: ListProps) -> Element {
                 input_element: input_element.clone(),
                 tasks: tasks.clone(), // ✅ Pass signal
                 id: id.clone(),
+                trigger_get: trigger_get,
             }
         }
     }
@@ -78,6 +81,7 @@ pub struct TasksProps {
     pub input_element: Signal<Option<Rc<MountedData>>>,
     pub tasks: Signal<Vec<Task>>,
     pub id: String,
+    pub trigger_get: Signal<i32>,
 }
 
 #[component]
@@ -86,6 +90,7 @@ pub fn Tasks(props: TasksProps) -> Element {
     let mut tasks = props.tasks;
     let mut new_task = props.new_task;
     let mut update_task = use_signal(|| "".to_string());
+    let mut trigger_get = props.trigger_get;
 
     // Element signals
     let mut input_element = props.input_element.clone();
@@ -94,9 +99,14 @@ pub fn Tasks(props: TasksProps) -> Element {
         div{
             class: "tasks",
             for task in tasks.read().clone() {
-                h3 {
+                div {
                     class: "task text",
-                    {task.info.clone()}
+                    h3 {
+                        {task.title.clone()}
+                    }
+                    h3 {
+                        "- {task.info.clone()}"
+                    }
                 }
                 input {
                     class: "task",
@@ -121,11 +131,12 @@ pub fn Tasks(props: TasksProps) -> Element {
                                 week: task.week,
                                 day: task.day,
                                 container_id: task.container_id,
-                            };
+                                };
 
-                            put_tasks(task.id.clone(), pass_data).await.expect("Failed to post task");
-                            update_task.set(String::new());
-
+                                put_tasks(task.id.clone(), pass_data).await.expect("Failed to post task");
+                                let val = *trigger_get.read();
+                                trigger_get.set(val + 1);
+                                update_task.set(String::new());
                             }
                         }
                     },
@@ -178,7 +189,7 @@ fn ListHeader(props: ListHeaderProps) -> Element {
         div{
             class: "header",
             h2 { {props.title} }
-            
+
             if props.id == "todays-tasks"{
                 DailyTaskSwitcher { }
             }
