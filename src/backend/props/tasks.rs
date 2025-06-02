@@ -43,7 +43,7 @@ impl Task{
         delete_tasks(self.id).await.expect("Panic");
     }
 
-    pub async fn get_all(title: String, week: String) -> Vec<Self>{
-        get_tasks(title, week).await.expect("Panic")
+    pub async fn get_all(title: String, week: String, day: Option<String>) -> Vec<Self>{
+        get_tasks(title, week, day).await.expect("Panic")
     }
 }

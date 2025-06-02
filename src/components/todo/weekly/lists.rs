@@ -23,6 +23,7 @@ pub fn List(props: ListProps) -> Element {
 
     // Date signals
     let selected_week = use_context::<TimeState>().selected_week;
+    let selected_day = use_context::<TimeState>().selected_day;
 
     // Props data
     let id = props.id.clone();
@@ -34,8 +35,15 @@ pub fn List(props: ListProps) -> Element {
         let id = props.id.clone();
         let trigger = trigger_get.read();
 
+        let mut day: Option<String> = None;
+
+        if id == "todays-tasks" {
+            day = Some(selected_day.read().format("%d/%m/%Y").to_string());
+        }
+        let week = selected_week.read().format("%d/%m/%Y").to_string();
+
         async move {
-            tasks.set(Task::get_all(id, selected_week.read().format("%d/%m/%Y").to_string()).await);
+            tasks.set(Task::get_all(id, week, day).await);
         }
     });
 
@@ -141,13 +149,17 @@ pub fn Tasks(props: TasksProps) -> Element {
                         if key == Key::Enter {
                             let mut task_data = string_split(new_task.read().clone());
 
-                            let pass_data: TaskInput = TaskInput {
+                            let mut pass_data: TaskInput = TaskInput {
                                 title: task_data.remove(0),
                                 info: task_data.remove(0),
                                 week: Some(use_context::<TimeState>().selected_week.read().format("%d/%m/%Y").to_string()),
                                 day: None,
-                                container_id: id,
+                                container_id: id.clone(),
                             };
+
+                            if id == "todays-tasks" {
+                                pass_data.day = Some(use_context::<TimeState>().selected_day.read().format("%d/%m/%Y").to_string())
+                            }
 
                             tasks.write().push(Task::new(pass_data).await);
                             new_task.set(String::new());
