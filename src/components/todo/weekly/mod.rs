@@ -11,11 +11,12 @@ use date_features::*;
 const WEEKLY: Asset = asset!("/assets/todo/weekly/weekly.css");
 
 #[derive(Clone, Copy)]
-pub struct TimeState {
+pub struct AppState {
     selected_week: Signal<DateTime<Local>>,
     selected_day: Signal<DateTime<Local>>,
     current_week: Signal<DateTime<Local>>,
     current_day: Signal<DateTime<Local>>,
+    edit_mode: Signal<bool>,
 }
 
 #[component]
@@ -33,11 +34,12 @@ pub fn Weekly() -> Element {
     // Page state signals
     let mut edit_mode = use_signal(|| false);
 
-    use_context_provider(|| TimeState {
+    use_context_provider(|| AppState {
         selected_week,
         selected_day,
         current_week,
         current_day,
+        edit_mode,
     });
 
     rsx!{
@@ -51,6 +53,12 @@ pub fn Weekly() -> Element {
             onclick: move |_| {
                 let edit = edit_mode.read().clone();
                 edit_mode.set(!edit);
+            },
+            if *edit_mode.read() {
+                "Edit mode"
+            }
+            else{
+                "View mode"
             }
         }
         div {

@@ -1,15 +1,15 @@
 use chrono::{DateTime, Datelike, Duration, Local};
 use dioxus::prelude::*;
-use crate::components::todo::weekly::TimeState;
+use crate::components::todo::weekly::AppState;
 
 const DATES: Asset = asset!("/assets/todo/weekly/date_features.css");
 
 #[component]
 pub fn WeeklyTaskSwitcher() -> Element{
-    let current_week = use_context::<TimeState>().current_week;
-    let mut selected_week = use_context::<TimeState>().selected_week;
-    let mut selected_day = use_context::<TimeState>().selected_day;
-    let current_day = use_context::<TimeState>().current_day;
+    let current_week = use_context::<AppState>().current_week;
+    let mut selected_week = use_context::<AppState>().selected_week;
+    let mut selected_day = use_context::<AppState>().selected_day;
+    let current_day = use_context::<AppState>().current_day;
 
     let formatted_date = use_memo(move || selected_week.read().format("%d/%m/%Y").to_string());
     let week_end = use_memo(move || (*selected_week.read() + Duration::days(6)).format("%d/%m/%Y").to_string());
@@ -63,9 +63,9 @@ pub fn WeeklyTaskSwitcher() -> Element{
 
 #[component]
 pub fn DailyTaskSwitcher() -> Element{
-    let current_day = use_context::<TimeState>().current_day;
-    let mut selected_day = use_context::<TimeState>().selected_day;
-    let mut selected_week = use_context::<TimeState>().selected_week;
+    let current_day = use_context::<AppState>().current_day;
+    let mut selected_day = use_context::<AppState>().selected_day;
+    let mut selected_week = use_context::<AppState>().selected_week;
 
     let formatted_date = use_memo(move || selected_day.read().format("%d/%m/%Y").to_string());
     let week_end = use_memo(move || *selected_week.read() + Duration::days(6));

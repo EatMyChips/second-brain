@@ -4,15 +4,16 @@ use dioxus::prelude::*;
 use rusqlite::{params, Connection, ToSql, Result as SqlResult};
 #[cfg(feature = "server")]
 use super::super::init_database::DB;
-use super::super::props::{Task, TaskInput};
+use super::super::props::{Task, NewTask};
 
 #[server]
-pub async fn post_tasks(task: TaskInput) -> Result<Option<i32>, ServerFnError> {
+pub async fn post_tasks(task: NewTask) -> Result<Option<i64>, ServerFnError> {
+    let empty_string: String = String::new();
     DB.with(|f| {
         // First, look up the container ID
         let mut stmt = f.prepare("SELECT id FROM containers WHERE title = ?1")?;
         let mut rows = stmt.query(params![task.container_id])?;
-
+        
         let container_id = if let Some(row) = rows.next()? {
             row.get::<_, i32>(0)?
         } else {
@@ -22,15 +23,15 @@ pub async fn post_tasks(task: TaskInput) -> Result<Option<i32>, ServerFnError> {
         f.execute(
             "INSERT INTO tasks (title, info, weeks, days, container_id) VALUES (?1, ?2, ?3, ?4, ?5)",
             params![
-                task.title,
-                task.info,
+                empty_string,
+                empty_string,
                 task.week.as_deref(),
                 task.day.as_deref(),
                 container_id,
             ],
         )?;
 
-        Ok(Some(f.last_insert_rowid() as i32))
+        Ok(Some(f.last_insert_rowid()))
     })
 }
 
@@ -61,7 +62,7 @@ pub async fn delete_tasks(id: i32) -> Result<(), ServerFnError> {
 }
 
 #[server]
-pub async fn get_tasks(container_title: String, current_week: String, current_day: Option<String>) -> Result<Vec<Task>, ServerFnError> {
+pub async fn get_tasks(container_title: String, current_week: String, current_day: Option<String>) -> Result<Vec<i64>, ServerFnError> {
     DB.with(|f| {
         let mut stmt;
         let mut rows;
@@ -69,42 +70,31 @@ pub async fn get_tasks(container_title: String, current_week: String, current_da
         // Use JOIN to fetch tasks based on the container title
         if let Some(day) = &current_day {
             stmt = f.prepare(
-                "SELECT t.id, t.title, t.info, t.weeks, t.days, t.container_id
-                 FROM tasks t
+                "SELECT t.id FROM tasks t
                  JOIN containers c ON t.container_id = c.id
                  WHERE c.title = ?1 AND t.weeks = ?2 AND t.days = ?3"
             )?;
             rows = stmt.query(params![container_title, current_week, current_day])?;
         } else {
             stmt = f.prepare(
-                "SELECT t.id, t.title, t.info, t.weeks, t.days, t.container_id
-                 FROM tasks t
+                "SELECT t.id FROM tasks t
                  JOIN containers c ON t.container_id = c.id
                  WHERE c.title = ?1 AND t.weeks = ?2 AND t.days IS NULL"
             )?;
             rows = stmt.query(params![container_title, current_week])?;
         }
-        
-        let mut tasks = Vec::new();
 
+        let mut tasks = Vec::new();
         while let Some(row) = rows.next()? {
-            let task = Task {
-                id: row.get(0)?,
-                title: row.get(1)?,
-                info: row.get(2)?,
-                week: row.get(3)?,
-                day: row.get(4)?,
-                container_id: row.get(5)?,
-            };
+            let task: i64 = row.get(0)?; // Use ? to propagate the error
             tasks.push(task);
         }
-
         Ok(tasks)
     })
 }
 
 #[server]
-pub async fn get_task(id: i32) -> Result<Option<Task>, ServerFnError> {
+pub async fn get_task(id: i64) -> Result<Option<Task>, ServerFnError> {
     DB.with(|f| {
         let mut stmt = f.prepare(
             "SELECT id, title, info, weeks, days, container_id
