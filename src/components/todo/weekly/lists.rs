@@ -43,6 +43,7 @@ pub fn List(props: ListProps) -> Element {
 
         // The closure must return an async block
         async move {
+            log::info!("{week:?},{day:?}");
             tasks.set(Task::get_all(id, week, day).await);
         }
     });

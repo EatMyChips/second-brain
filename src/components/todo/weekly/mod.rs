@@ -47,20 +47,7 @@ pub fn Weekly() -> Element {
 
         super::Header {}
         WeeklyTaskSwitcher {  }
-
-        button {
-            class: "mode_switch",
-            onclick: move |_| {
-                let edit = edit_mode.read().clone();
-                edit_mode.set(!edit);
-            },
-            if *edit_mode.read() {
-                "Edit mode"
-            }
-            else{
-                "View mode"
-            }
-        }
+        
         div {
             class: "weekly-lists",
             TodaysTasks {  }

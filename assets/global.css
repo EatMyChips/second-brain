@@ -1,6 +1,14 @@
+:root {
+    --primary: #0c0e12;
+    --secondary: #FFFFFF;
+    --accent1: #402ebd;
+    --accent2: #dd9f3e;
+}
+
 body{
     margin: 0;
-    padding: 5rem 10vw 0 10vw; /* controls the distance from the edge */
+    padding: 5rem 10vw 0 10vw;
     box-sizing: border-box;
     font-family: sans-serif;
+    background: var(--primary);
 }
