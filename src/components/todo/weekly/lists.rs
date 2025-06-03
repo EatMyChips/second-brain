@@ -1,4 +1,4 @@
-use std::ops::Deref;
+use std::ops::{Deref, DerefMut};
 use std::rc::Rc;
 use dioxus::prelude::*;
 use crate::backend::*;
@@ -16,13 +16,15 @@ pub struct ListProps {
 }
 
 //TODO:: current issue is pushing to a Signal<vec<>>
-// My current thoughts are maybe having a vec<Signal<>> but i dont think this will work as expected 
+// My current thoughts are maybe having a vec<Signal<>> but i dont think this will work as expected
 #[component]
 pub fn List(props: ListProps) -> Element {
     // Date signals
     let selected_week = use_context::<AppState>().selected_week;
     let selected_day = use_context::<AppState>().selected_day;
     let edit_mode = use_context::<AppState>().edit_mode;
+
+    let mut tasks = use_signal(|| vec!());
 
     // Props data
     let id = props.id.clone();
@@ -33,21 +35,22 @@ pub fn List(props: ListProps) -> Element {
 
         // get current dates
         let day = if id == "todays-tasks" {
-            Some(selected_day.read().format("%d/%m/%y").to_string())
+            Some(selected_day.read().format("%d/%m/%Y").to_string())
         } else {
             None
         };
-        let week: String = selected_week.read().format("%d/%m/%y").to_string();
+        let week: String = selected_week.read().format("%d/%m/%Y").to_string();
 
         // The closure must return an async block
         async move {
-            use_signal( async|| Task::get_all(id, week, day).await)
+            tasks.set(Task::get_all(id, week, day).await);
         }
     });
 
     rsx!{
         match tasks_loading.read_unchecked().deref() {
-            Some(mut tasks) => rsx! {
+            Some(_) => {
+                rsx! {
                 document::Stylesheet { href: LISTS}
 
                 div{
@@ -58,18 +61,16 @@ pub fn List(props: ListProps) -> Element {
                         let id = id.clone();
                         async move {
                             let key = event.data.key();
-                            let mut tasks = tasks.clone()
                             if *edit_mode.read() {
                                 if key == Key::Enter {
                                     let day = if id == "todays-tasks" {
-                                        Some(selected_day.read().format("%d/%m/%y").to_string())
+                                        Some(selected_day.read().format("%d/%m/%Y").to_string())
                                     } else {
                                         None
                                     };
                                     let week = Some(selected_week.read().format("%d/%m/%Y").to_string());
 
-                                    let mut vec = tasks.write();
-                                    vec.deref().push(Task::new(week, day, id).await);
+                                    tasks.write().push(Task::new(week, day, id).await);
                                 }
                             }
                         }
@@ -81,11 +82,11 @@ pub fn List(props: ListProps) -> Element {
                     div{
                         class: "tasks",
                         for id in tasks.read().clone() {
-                            TaskComp {id}
+                            TaskComp {id},
                         }
                     }
                 }
-            },
+            }},
             None =>  rsx! { p { "Loading..." } }
         }
     }
@@ -104,7 +105,7 @@ fn TaskComp(id: i64) -> Element{
         div {
             class: "task text",
             h3 {
-
+                "penis"
             }
 
         }

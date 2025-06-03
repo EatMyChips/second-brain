@@ -40,6 +40,8 @@ impl Task{
     }
 
     pub async fn get_all(title: String, week: String, day: Option<String>) -> Vec<i64>{
-        get_tasks(title, week, day).await.expect("Panic")
+        let out = get_tasks(title, week, day).await.expect("Panic");
+        log::info!("{out:?}");
+        out
     }
 }

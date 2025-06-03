@@ -86,8 +86,8 @@ pub async fn get_tasks(container_title: String, current_week: String, current_da
 
         let mut tasks = Vec::new();
         while let Some(row) = rows.next()? {
-            let task: i64 = row.get(0)?; // Use ? to propagate the error
-            tasks.push(task);
+            let id: i64 = row.get(0)?;
+            tasks.push(id);
         }
         Ok(tasks)
     })
