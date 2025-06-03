@@ -14,11 +14,10 @@ pub struct ListProps {
     title: String,
 }
 
+//TODO:: current issue is pushing to a Signal<vec<>>
+// My current thoughts are maybe having a vec<Signal<>> but i dont think this will work as expected 
 #[component]
 pub fn List(props: ListProps) -> Element {
-    // Task signals
-    let mut tasks = use_signal(|| Vec::<i64>::new());
-
     // Date signals
     let selected_week = use_context::<AppState>().selected_week;
     let selected_day = use_context::<AppState>().selected_day;
@@ -67,7 +66,7 @@ pub fn List(props: ListProps) -> Element {
                                     };
                                     let week = Some(selected_week.read().format("%d/%m/%Y").to_string());
 
-                                    tasks.read().push(Task::new(week, day, id).await);
+                                    tasks.write().push(Task::new(week, day, id).await);
                                 }
                             }
                         }
