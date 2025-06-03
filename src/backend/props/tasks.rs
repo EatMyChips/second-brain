@@ -23,13 +23,11 @@ pub struct Task {
 }
 
 impl Task{
-    pub async fn new(input: TaskInput) -> Task {
-        //TODO:: remove the unwraps and replace with error handling
-
+    pub async fn new(input: TaskInput) -> Self {
         Task::get_with_id(post_tasks(input).await.expect("Panic").unwrap()).await
     }
 
-    async fn get_with_id(id: i32) -> Task {
+    async fn get_with_id(id: i32) -> Self {
         get_task(id).await.expect("Panic").unwrap()
     }
 
