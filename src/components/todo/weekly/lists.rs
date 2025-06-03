@@ -1,3 +1,4 @@
+use std::ops::Deref;
 use std::rc::Rc;
 use dioxus::prelude::*;
 use crate::backend::*;
@@ -45,7 +46,7 @@ pub fn List(props: ListProps) -> Element {
     });
 
     rsx!{
-        match &*tasks_loading.read_unchecked() {
+        match tasks_loading.read_unchecked().deref() {
             Some(mut tasks) => rsx! {
                 document::Stylesheet { href: LISTS}
 
@@ -57,6 +58,7 @@ pub fn List(props: ListProps) -> Element {
                         let id = id.clone();
                         async move {
                             let key = event.data.key();
+                            let mut tasks = tasks.clone()
                             if *edit_mode.read() {
                                 if key == Key::Enter {
                                     let day = if id == "todays-tasks" {
@@ -66,7 +68,8 @@ pub fn List(props: ListProps) -> Element {
                                     };
                                     let week = Some(selected_week.read().format("%d/%m/%Y").to_string());
 
-                                    tasks.write().push(Task::new(week, day, id).await);
+                                    let mut vec = tasks.write();
+                                    vec.deref().push(Task::new(week, day, id).await);
                                 }
                             }
                         }
