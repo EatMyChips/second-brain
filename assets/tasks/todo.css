@@ -1,0 +1,19 @@
+.nav-bar{
+    position: sticky;
+    display: flex;
+    width: 100%;;
+    justify-content: space-evenly;
+}
+
+.nav-button{
+    padding: 0.5rem 3rem;
+    border: none;
+    background-color: rgba(255, 255, 255, 0);
+    font-size: 3rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.selected{
+    border-bottom: 0.2rem solid var(--accent1);
+}

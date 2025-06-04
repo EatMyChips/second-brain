@@ -1,14 +1,27 @@
 :root {
     --primary: #0c0e12;
-    --secondary: #FFFFFF;
-    --accent1: #402ebd;
-    --accent2: #dd9f3e;
+    --secondary: #ebfaee;
+    --accent1: #402EBDFF;
+    --accent1_dark: rgba(64, 46, 189, 0.10);
+    --accent2: #44A991;
 }
 
 body{
     margin: 0;
     padding: 5rem 10vw 0 10vw;
     box-sizing: border-box;
-    font-family: sans-serif;
     background: var(--primary);
+    color: var(--secondary);
+    font-family: "Inria Serif", serif;
+}
+
+button {
+    color: var(--secondary);
+    background-color: var(--accent1);
+}
+
+input {
+    color: var(--secondary);
+    background-color: var(--accent1);
+    font-family: "Inria Serif", serif;
 }

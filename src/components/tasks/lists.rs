@@ -1,13 +1,10 @@
-use std::ops::{Deref, DerefMut};
-use std::rc::Rc;
+use std::ops::Deref;
 use dioxus::prelude::*;
-use crate::backend::*;
 use crate::backend::props::Task;
-use crate::components::todo::weekly::date_features::DailyTaskSwitcher;
 use super::AppState;
 
-const LISTS: Asset = asset!("/assets/todo/weekly/lists.css");
-const HEADER: Asset = asset!("/assets/todo/weekly/header.css");
+const LISTS: Asset = asset!("/assets/tasks/weekly/lists.css");
+const HEADER: Asset = asset!("/assets/tasks/weekly/header.css");
 
 #[derive(PartialEq, Props, Clone)]
 pub struct ListProps {
@@ -104,16 +101,16 @@ fn TaskComp(id: i64) -> Element{
 
     rsx!{
         div {
-            class: "task text",
-            h3 {
-                "penis"
-            }
-
-        }
-        input {
             class: "task",
-            value: "",
-            tabindex: "0",
+            input {
+                class: "check",
+                type: "checkbox",
+            }
+            input {
+                class: "task-heading",
+                value: "SECOND-BRAIN - do the styling",
+                tabindex: "0",
+            }
         }
     }
 }
@@ -133,9 +130,9 @@ fn ListHeader(props: ListHeaderProps) -> Element {
             class: "header",
             h2 { {props.title} }
 
-            if props.id == "todays-tasks"{
-                DailyTaskSwitcher { }
-            }
+            // if props.id == "todays-tasks"{
+            //     DailyTaskSwitcher { }
+            // }
         }
     }
 }

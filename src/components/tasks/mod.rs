@@ -5,10 +5,11 @@ use dioxus::prelude::*;
 use web_sys::HtmlElement;
 use std::rc::Rc;
 use chrono::{DateTime, Datelike, Duration, Local};
-use lists::*;
-use date_features::*;
+use crate::components::tasks::lists::*;
+use crate::components::tasks::date_features::*;
 
-const WEEKLY: Asset = asset!("/assets/todo/weekly/weekly.css");
+const TODO: Asset = asset!("assets/tasks/todo.css");
+const TASKS: Asset = asset!("assets/tasks/weekly/tasks.css");
 
 #[derive(Clone, Copy)]
 pub struct AppState {
@@ -20,7 +21,7 @@ pub struct AppState {
 }
 
 #[component]
-pub fn Weekly() -> Element {
+pub fn Tasks() -> Element {
     // Time signals
     let current_day = use_signal(|| Local::now() );
     let selected_day = use_signal(|| *current_day.read() );
@@ -43,16 +44,14 @@ pub fn Weekly() -> Element {
     });
 
     rsx!{
-        document::Stylesheet { href: WEEKLY}
+        document::Stylesheet { href: TASKS}
 
-        super::Header {}
-        WeeklyTaskSwitcher {  }
-        
+        Header {}
+        //WeeklyTaskSwitcher {  }
+        TodaysTasks {  }
         div {
             class: "weekly-lists",
-            TodaysTasks {  }
-            CheckBoxes {  }
-            div { class: "break" }
+            /*CheckBoxes {  }*/
             University {  }
             Personal {  }
             Life {  }
@@ -107,6 +106,29 @@ fn Life() -> Element {
         List {
             id: String::from("life"),
             title: String::from("Life"),
+        }
+    }
+}
+
+#[component]
+pub fn Header() -> Element{
+    rsx!{
+        document::Stylesheet { href: TODO}
+        div {
+            class: "nav-bar",
+             button {
+                class: "nav-button selected",
+                "Tasks"
+            }
+             button {
+                class: "nav-button",
+                "Rewards"
+            }
+             button {
+                class: "nav-button",
+                id: "rewards",
+                "Finance"
+            }
         }
     }
 }
