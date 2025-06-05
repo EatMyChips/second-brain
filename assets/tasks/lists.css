@@ -3,11 +3,7 @@
     flex-direction: column;
     border-radius: 3rem;
     height: 100%;
-    width: 27vw;
-}
-
-#todays-tasks {
-    float: right;
+    width: 28vw;
 }
 
 .header {

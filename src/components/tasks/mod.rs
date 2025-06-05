@@ -35,17 +35,23 @@ pub fn Tasks() -> Element {
 
     //Scroll state signals
     let mut scroll_page = use_signal(|| None);
-    let mut rewards = use_signal(|| None);
-    let mut today = use_signal(|| None);
-    let mut weekly = use_signal(|| None);
-    let mut task = use_signal(|| None);
     let mut scroll_position = use_signal(|| 0.0);
+
+    //Scroll  objects
+    let mut calendar = use_signal(|| None);
+
 
     use_context_provider(|| AppState {
         selected_week,
         selected_day,
         current_week,
         current_day,
+    });
+
+    let _ = use_resource(move || {
+        let pos = *scroll_position.read();
+        async move{
+        }
     });
 
     rsx!{
@@ -71,43 +77,66 @@ pub fn Tasks() -> Element {
             div {
                 class: "page",
                 id: "rewards",
-                onmounted: move |element| rewards.set(Some(element.data)),
-            },
+                div {
+                    class: "reward",
+                }
+                Checks {}
+            }
             div {
                 class: "page",
-                id: "today",
-                onmounted: move |element| today.set(Some(element.data)),
+                id: "calendar",
+                 onmounted: move |element| async move {
+                    let _ = element.set_focus(true).await;
+                    calendar.set(Some(element.data))
+                },
+                Calendar {}
+            }
+            div {
+                class: "page",
+                id: "todays",
                 List {
-                    id: String::from("todays-tasks"),
-                    title: String::from("Today's Tasks"),
+                    id: "todays-tasks",
+                    title: "Today's Tasks"
                 }
             }
             div {
                 class: "page",
                 id: "weekly",
-                onmounted: move |element| weekly.set(Some(element.data)),
                 List {
-                    id: String::from("professional"),
-                    title: String::from("Professional"),
+                    id: "professional",
+                    title: "Professional"
                 }
                 List {
-                    id: String::from("personal"),
-                    title: String::from("Personal"),
+                    id: "personal",
+                    title: "Personal"
                 }
-            },
+            }
             div {
                 class: "page",
-                id: "task",
-                onmounted: move |element| task.set(Some(element.data)),
+                id: "tasks",
                 List {
-                    id: String::from("tasks"),
-                    title: String::from("Tasks"),
+                    id: "task",
+                    title: "Task"
                 }
-                List {
-                    id: String::from("deadlines"),
-                    title: String::from("Deadlines"),
-                }
-            },
+            }
+        }
+    }
+}
+
+#[component]
+fn Calendar() -> Element {
+    rsx!{
+        div {
+            class: "calendar",
+        }
+    }
+}
+
+#[component]
+fn Checks() -> Element {
+    rsx!{
+        div {
+            class: "checks",
         }
     }
 }
