@@ -1,18 +1,20 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter&display=swap');
 :root {
     --primary: #0c0e12;
+    --primary2: #222020;
     --secondary: #ebfaee;
     --accent1: #402EBDFF;
-    --accent1_dark: rgba(64, 46, 189, 0.10);
+    --accent1_dark: rgb(17, 17, 39);
     --accent2: #44A991;
 }
 
 body{
     margin: 0;
-    padding: 5rem 10vw 0 10vw;
     box-sizing: border-box;
+    /*background: radial-gradient(var(--primary2), var(--primary));*/
     background: var(--primary);
     color: var(--secondary);
-    font-family: "Inria Serif", serif;
+    font-family: "Inter", sans-serif;
 }
 
 button {
@@ -23,5 +25,4 @@ button {
 input {
     color: var(--secondary);
     background-color: var(--accent1);
-    font-family: "Inria Serif", serif;
 }

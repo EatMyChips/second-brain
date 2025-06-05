@@ -2,14 +2,16 @@
     position: sticky;
     display: flex;
     width: 100%;;
+    height: 6vh;
     justify-content: space-evenly;
+    margin-bottom: 4vh;
 }
 
 .nav-button{
     padding: 0.5rem 3rem;
     border: none;
     background-color: rgba(255, 255, 255, 0);
-    font-size: 3rem;
+    font-size: 2rem;
     cursor: pointer;
     transition: background-color 0.3s ease;
 }

@@ -2,7 +2,7 @@ use chrono::{DateTime, Datelike, Duration, Local};
 use dioxus::prelude::*;
 use crate::components::tasks::AppState;
 
-const DATES: Asset = asset!("/assets/tasks/weekly/date_features.css");
+const DATES: Asset = asset!("/assets/tasks/date_features.css");
 
 #[component]
 pub fn WeeklyTaskSwitcher() -> Element{

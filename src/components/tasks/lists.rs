@@ -3,8 +3,7 @@ use dioxus::prelude::*;
 use crate::backend::props::Task;
 use super::AppState;
 
-const LISTS: Asset = asset!("/assets/tasks/weekly/lists.css");
-const HEADER: Asset = asset!("/assets/tasks/weekly/header.css");
+const LISTS: Asset = asset!("/assets/tasks/lists.css");
 
 #[derive(PartialEq, Props, Clone)]
 pub struct ListProps {
@@ -12,14 +11,11 @@ pub struct ListProps {
     title: String,
 }
 
-//TODO:: current issue is pushing to a Signal<vec<>>
-// My current thoughts are maybe having a vec<Signal<>> but i dont think this will work as expected
 #[component]
 pub fn List(props: ListProps) -> Element {
     // Date signals
     let selected_week = use_context::<AppState>().selected_week;
     let selected_day = use_context::<AppState>().selected_day;
-    let edit_mode = use_context::<AppState>().edit_mode;
 
     let mut tasks = use_signal(|| vec!());
 
@@ -49,17 +45,16 @@ pub fn List(props: ListProps) -> Element {
         match tasks_loading.read_unchecked().deref() {
             Some(_) => {
                 rsx! {
-                document::Stylesheet { href: LISTS}
+                    document::Stylesheet { href: LISTS}
 
-                div{
-                    class: "element list",
-                    id: id.clone(),
-                    tabindex: "0",
-                    onkeydown: move |event: Event<KeyboardData>| {
-                        let id = id.clone();
-                        async move {
-                            let key = event.data.key();
-                            if *edit_mode.read() {
+                    div{
+                        class: "element",
+                        id: id.clone(),
+                        tabindex: "0",
+                        onkeydown: move |event: Event<KeyboardData>| {
+                            let id = id.clone();
+                            async move {
+                                let key = event.data.key();
                                 if key == Key::Enter {
                                     let day = if id == "todays-tasks" {
                                         Some(selected_day.read().format("%d/%m/%Y").to_string())
@@ -71,21 +66,34 @@ pub fn List(props: ListProps) -> Element {
                                     tasks.write().push(Task::new(week, day, id).await);
                                 }
                             }
+                        },
+                        ListHeader {
+                            title: props.title,
+                            id: id.clone(),
                         }
-                    },
-                    ListHeader {
-                        title: props.title,
-                        id: id.clone(),
-                    }
-                    div{
-                        class: "tasks",
-                        for id in tasks.read().clone() {
-                            TaskComp {id},
+                        div{
+                            class: "tasks",
+                            for id in tasks.read().clone() {
+                                TaskComp {id},
+                            }
                         }
                     }
                 }
-            }},
-            None =>  rsx! { p { "Loading..." } }
+            },
+            None =>  rsx! {
+                div{
+                    class: "element list",
+                    id: id.clone(),
+                    tabindex: "0",
+                    ListHeader {
+                        title: props.title,
+                        id: id.clone(),
+                    },
+                    h3 {
+                        "Loading..."
+                    }
+                }
+            }
         }
     }
 }
@@ -124,8 +132,6 @@ struct ListHeaderProps {
 #[component]
 fn ListHeader(props: ListHeaderProps) -> Element {
     rsx!{
-        document::Stylesheet { href: HEADER}
-
         div{
             class: "header",
             h2 { {props.title} }

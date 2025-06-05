@@ -1,0 +1,46 @@
+.weekly-lists{
+    display: flex;
+    width: 100vw;
+    height: 88vh;
+    overflow-x: scroll;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    box-sizing: border-box;
+}
+
+
+
+.page {
+    height: 100%;
+    flex-shrink: 0;
+    padding: 5rem 0;
+    box-sizing: border-box;
+}
+
+#today {
+    scroll-snap-align: center;
+    width: 100vw;
+    padding-right: 5vw;
+}
+
+#weekly {
+    display: flex;
+    scroll-snap-align: end;
+    width: 64vw;
+    gap: 5vw;
+    padding-right: 5vw;
+}
+
+#weekly.t{
+    padding-right: 2vw;
+    width: 49vw;
+    gap: 2vw;
+}
+
+#task {
+    display: flex;
+    scroll-snap-align: end;
+    gap: 2vw;
+    padding-right: 2vw;
+    width: 49vw;
+}
