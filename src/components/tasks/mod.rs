@@ -119,19 +119,16 @@ pub fn Header() -> Element{
         div {
             class: "nav-bar",
              button {
+                class: "nav-button",
+                "Rewards"
+            }
+             button {
                 class: "nav-button selected",
-                "data-index": "0",
                 "Daily"
             }
              button {
                 class: "nav-button",
-                "data-index": "1",
                 "Weekly"
-            }
-             button {
-                class: "nav-button",
-                "data-index": "2",
-                "Tasks"
             }
         }
     }
