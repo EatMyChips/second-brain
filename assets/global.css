@@ -1,6 +1,28 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter&display=swap');
+:root {
+    --primary: #0c0e12;
+    --primary2: #222020;
+    --secondary: #ebfaee;
+    --accent1: #402EBDFF;
+    --accent1_dark: rgb(17, 17, 39);
+    --accent2: #44A991;
+}
+
 body{
     margin: 0;
-    padding: 5rem 10vw 0 10vw; /* controls the distance from the edge */
     box-sizing: border-box;
-    font-family: sans-serif;
+    /*background: radial-gradient(var(--primary2), var(--primary));*/
+    background: var(--primary);
+    color: var(--secondary);
+    font-family: "Inter", sans-serif;
+}
+
+button {
+    color: var(--secondary);
+    background-color: var(--accent1);
+}
+
+input {
+    color: var(--secondary);
+    background-color: var(--accent1);
 }

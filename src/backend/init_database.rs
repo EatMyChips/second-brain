@@ -25,7 +25,7 @@ thread_local! {
             );
 
             -- Insert sample data
-            -- INSERT OR IGNORE INTO containers (id, title) VALUES (1, 'todays-tasks'), (2, 'university'), (3, 'personal'), (4, 'life');
+            -- INSERT OR IGNORE INTO containers (id, title) VALUES (1, 'todays-tasks'), (2, 'professional'), (3, 'personal');
             ",
         ).unwrap();
 

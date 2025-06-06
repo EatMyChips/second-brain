@@ -9,8 +9,8 @@ const GLOBAL: Asset = asset!("assets/global.css");
 
 #[derive(Routable, Clone, PartialEq)]
 enum Route {
-    #[route("/todo/weekly")]
-    Weekly {},
+    #[route("/tasks")]
+    Tasks {},
 }
 
 // This is new in 0.6: it handles platform-specific launching
