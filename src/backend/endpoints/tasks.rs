@@ -21,7 +21,7 @@ pub async fn post_tasks(task: NewTask) -> Result<Option<i64>, ServerFnError> {
         };
 
         f.execute(
-            "INSERT INTO tasks (title, info, weeks, days, container_id) VALUES (?1, ?2, ?3, ?4, ?5)",
+            "INSERT INTO todo (title, info, weeks, days, container_id) VALUES (?1, ?2, ?3, ?4, ?5)",
             params![
                 empty_string,
                 empty_string,
@@ -39,7 +39,7 @@ pub async fn post_tasks(task: NewTask) -> Result<Option<i64>, ServerFnError> {
 pub async fn put_tasks(task: Task) -> Result<(), ServerFnError> {
     DB.with(|f| {
         f.execute(
-            "UPDATE tasks SET title = ?1, info = ?2, weeks = ?3, days = ?4, container_id = ?5 WHERE id = ?6",
+            "UPDATE todo SET title = ?1, info = ?2, weeks = ?3, days = ?4, container_id = ?5 WHERE id = ?6",
             params![
                 task.title,
                 task.info,
@@ -56,7 +56,7 @@ pub async fn put_tasks(task: Task) -> Result<(), ServerFnError> {
 #[server]
 pub async fn delete_tasks(id: i32) -> Result<(), ServerFnError> {
     DB.with(|f| {
-        f.execute("DELETE FROM tasks WHERE id = ?1", params![id])?;
+        f.execute("DELETE FROM todo WHERE id = ?1", params![id])?;
         Ok(())
     })
 }
@@ -67,17 +67,17 @@ pub async fn get_tasks(container_title: String, current_week: String, current_da
         let mut stmt;
         let mut rows;
         
-        // Use JOIN to fetch tasks based on the container title
+        // Use JOIN to fetch todo based on the container title
         if let Some(day) = &current_day {
             stmt = f.prepare(
-                "SELECT t.id FROM tasks t
+                "SELECT t.id FROM todo t
                  JOIN containers c ON t.container_id = c.id
                  WHERE c.title = ?1 AND t.weeks = ?2 AND t.days = ?3"
             )?;
             rows = stmt.query(params![container_title, current_week, current_day])?;
         } else {
             stmt = f.prepare(
-                "SELECT t.id FROM tasks t
+                "SELECT t.id FROM todo t
                  JOIN containers c ON t.container_id = c.id
                  WHERE c.title = ?1 AND t.weeks = ?2 AND t.days IS NULL"
             )?;
@@ -98,7 +98,7 @@ pub async fn get_task(id: i64) -> Result<Option<Task>, ServerFnError> {
     DB.with(|f| {
         let mut stmt = f.prepare(
             "SELECT id, title, info, weeks, days, container_id
-             FROM tasks
+             FROM todo
              WHERE id = ?1"
         )?;
         let mut rows = stmt.query(params![id])?;

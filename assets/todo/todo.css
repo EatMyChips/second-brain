@@ -1,0 +1,60 @@
+.main-scroll{
+    display: flex;
+    width: 100vw;
+    height: 84vh;
+    overflow-x: scroll;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    box-sizing: border-box;
+}
+
+.page {
+    height: 100%;
+    flex-shrink: 0;
+    padding: 6rem 0;
+    box-sizing: border-box;
+}
+
+#rewards.daily {
+    width: 28vw;
+    padding-left: 3vw;
+    background-color: rgba(111, 115, 111, 0.2);
+}
+
+#calendar.daily {
+    width: 44vw;
+    padding-left: 3vw;
+    padding-right: 3vw;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-content: center;
+    gap: 2rem;
+}
+
+#tasks.daily {
+    display: flex;
+    gap: 3vw;
+
+    width: 28vw;
+}
+
+#calendar.weekly {
+    width: 44vw;
+    padding-left: 3vw;
+    padding-right: 3vw;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-content: center;
+    gap: 2rem;
+}
+
+#tasks.weekly {
+    display: flex;
+    gap: 3vw;
+
+    width: 28vw;
+}

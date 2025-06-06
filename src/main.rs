@@ -9,7 +9,7 @@ const GLOBAL: Asset = asset!("assets/global.css");
 
 #[derive(Routable, Clone, PartialEq)]
 enum Route {
-    #[route("/tasks")]
+    #[route("/todo")]
     Tasks {},
 }
 

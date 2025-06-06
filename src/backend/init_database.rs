@@ -14,7 +14,7 @@ thread_local! {
                 title TEXT NOT NULL
             );
 
-            CREATE TABLE IF NOT EXISTS tasks (
+            CREATE TABLE IF NOT EXISTS todo (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 title TEXT NOT NULL,
                 info TEXT NOT NULL,
@@ -25,7 +25,7 @@ thread_local! {
             );
 
             -- Insert sample data
-            -- INSERT OR IGNORE INTO containers (id, title) VALUES (1, 'todays-tasks'), (2, 'professional'), (3, 'personal');
+            -- INSERT OR IGNORE INTO containers (id, title) VALUES (1, 'todays-todo'), (2, 'professional'), (3, 'personal');
             ",
         ).unwrap();
 

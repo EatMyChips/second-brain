@@ -1,17 +1,17 @@
-mod lists;
-mod date_features;
+mod calendar;
+mod rewards;
+mod header;
+mod tasks;
 
-use std::ops::Deref;
 use dioxus::prelude::*;
-use web_sys::HtmlElement;
-use std::rc::Rc;
 use chrono::{DateTime, Datelike, Duration, Local};
 use dioxus::web::WebEventExt;
-use crate::components::tasks::lists::*;
-use crate::components::tasks::date_features::*;
+use crate::components::todo::tasks::*;
+use crate::components::todo::calendar::*;
+use crate::components::todo::rewards::*;
+use crate::components::todo::header::*;
 
-const HEADER: Asset = asset!("assets/tasks/header.css");
-const TASKS: Asset = asset!("assets/tasks/tasks.css");
+const TASKS: Asset = asset!("assets/todo/todo.css");
 
 #[derive(Clone, Copy)]
 pub struct AppState {
@@ -37,10 +37,6 @@ pub fn Tasks() -> Element {
     let mut scroll_page = use_signal(|| None);
     let mut scroll_position = use_signal(|| 0.0);
 
-    //Scroll  objects
-    let mut calendar = use_signal(|| None);
-
-
     use_context_provider(|| AppState {
         selected_week,
         selected_day,
@@ -61,7 +57,7 @@ pub fn Tasks() -> Element {
         //WeeklyTaskSwitcher {  }
 
         div {
-            class: "weekly-lists",
+            class: "main-scroll",
             id: "scroll",
             onmounted: move |element| async move {
                 let _ = element.set_focus(true).await;
@@ -75,33 +71,18 @@ pub fn Tasks() -> Element {
                 }
             },
             div {
-                class: "page",
+                class: "page daily",
                 id: "rewards",
-                div {
-                    class: "reward",
-                }
                 Checks {}
             }
+            Calendar {}
             div {
-                class: "page",
-                id: "calendar",
-                 onmounted: move |element| async move {
-                    let _ = element.set_focus(true).await;
-                    calendar.set(Some(element.data))
-                },
-                Calendar {}
-            }
-            div {
-                class: "page",
-                id: "todays",
+                class: "page weekly",
+                id: "tasks",
                 List {
                     id: "todays-tasks",
                     title: "Today's Tasks"
                 }
-            }
-            div {
-                class: "page",
-                id: "weekly",
                 List {
                     id: "professional",
                     title: "Professional"
@@ -110,54 +91,10 @@ pub fn Tasks() -> Element {
                     id: "personal",
                     title: "Personal"
                 }
-            }
-            div {
-                class: "page",
-                id: "tasks",
                 List {
                     id: "task",
                     title: "Task"
                 }
-            }
-        }
-    }
-}
-
-#[component]
-fn Calendar() -> Element {
-    rsx!{
-        div {
-            class: "calendar",
-        }
-    }
-}
-
-#[component]
-fn Checks() -> Element {
-    rsx!{
-        div {
-            class: "checks",
-        }
-    }
-}
-
-#[component]
-pub fn Header() -> Element{
-    rsx!{
-        document::Stylesheet { href: HEADER}
-        div {
-            class: "nav-bar",
-             button {
-                class: "nav-button",
-                "Rewards"
-            }
-             button {
-                class: "nav-button selected",
-                "Daily"
-            }
-             button {
-                class: "nav-button",
-                "Weekly"
             }
         }
     }

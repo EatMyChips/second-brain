@@ -1,4 +1,4 @@
-mod tasks;
-//pub use tasks::{TodoComponent, TodoRoute};
-pub use tasks::Tasks;
+mod todo;
+//pub use todo::{TodoComponent, TodoRoute};
+pub use todo::Tasks;
 

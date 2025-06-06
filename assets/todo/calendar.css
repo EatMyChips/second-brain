@@ -1,0 +1,11 @@
+.calendar {
+    flex-grow: 3;
+    width: 100%;
+    background-color: var(--accent1);
+}
+
+.clock {
+    flex-grow: 1;
+    width: 100%;
+    background-color: var(--accent1);
+}

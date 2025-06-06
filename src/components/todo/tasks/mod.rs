@@ -3,7 +3,7 @@ use dioxus::prelude::*;
 use crate::backend::props::Task;
 use super::AppState;
 
-const LISTS: Asset = asset!("/assets/tasks/lists.css");
+const LISTS: Asset = asset!("/assets/todo/tasks.css");
 
 #[derive(PartialEq, Props, Clone)]
 pub struct ListProps {
@@ -22,12 +22,12 @@ pub fn List(props: ListProps) -> Element {
     // Props data
     let id = props.id.clone();
 
-    // Get tasks if selected_week or selected_day updates
+    // Get todo if selected_week or selected_day updates
     let tasks_loading = use_resource(move || {
         let id: String = props.id.clone();
 
         // get current dates
-        let day = if id == "todays-tasks" {
+        let day = if id == "todays-todo" {
             Some(selected_day.read().format("%d/%m/%Y").to_string())
         } else {
             None
@@ -56,7 +56,7 @@ pub fn List(props: ListProps) -> Element {
                             async move {
                                 let key = event.data.key();
                                 if key == Key::Enter {
-                                    let day = if id == "todays-tasks" {
+                                    let day = if id == "todays-todo" {
                                         Some(selected_day.read().format("%d/%m/%Y").to_string())
                                     } else {
                                         None
@@ -136,7 +136,7 @@ fn ListHeader(props: ListHeaderProps) -> Element {
             class: "header",
             h2 { {props.title} }
 
-            // if props.id == "todays-tasks"{
+            // if props.id == "todays-todo"{
             //     DailyTaskSwitcher { }
             // }
         }

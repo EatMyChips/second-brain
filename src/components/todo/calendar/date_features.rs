@@ -1,8 +1,8 @@
 use chrono::{DateTime, Datelike, Duration, Local};
 use dioxus::prelude::*;
-use crate::components::tasks::AppState;
+use crate::components::todo::AppState;
 
-const DATES: Asset = asset!("/assets/tasks/date_features.css");
+const DATES: Asset = asset!("/assets/todo/date_features.css");
 
 #[component]
 pub fn WeeklyTaskSwitcher() -> Element{

@@ -1,9 +1,14 @@
 .element{
+    flex-grow: 0;
+    flex-shrink: 0;
+
     display: flex;
     flex-direction: column;
+
     border-radius: 3rem;
     height: 100%;
-    width: 28vw;
+    width: 25vw;
+
 }
 
 .header {
