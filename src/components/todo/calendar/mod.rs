@@ -21,6 +21,26 @@ pub fn Calendar(calendar: Signal<Option<Rc<MountedData>>>) -> Element {
             }
             div {
                 class: "clock",
+                h1 {
+                    class: "clock-digits",
+                    "1"
+                }
+                h1 {
+                    class: "clock-digits",
+                    "6"
+                }
+                h1 {
+                    class: "clock-break",
+                    ":"
+                }
+                h1 {
+                    class: "clock-digits",
+                    "3"
+                }
+                h1 {
+                    class: "clock-digits",
+                    "2"
+                }
             }
         }
     }

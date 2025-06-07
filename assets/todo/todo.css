@@ -5,6 +5,7 @@
     overflow-x: scroll;
     overflow-y: hidden;
     scroll-snap-type: x mandatory;
+    overscroll-behavior: none;
     box-sizing: border-box;
 }
 
@@ -42,13 +43,13 @@
     width: 34vw;
     padding-left: 2vw;
     padding-right: 2vw;
+    scroll-snap-align: start;
 }
 
 /*Tasks section styles*/
 #tasks{
     width: 64vw;
     margin-right: 2vw;
-    scroll-snap-align: end;
 }
 
 #tasks.daily {
@@ -63,4 +64,5 @@
 
     overflow: scroll;
     scroll-snap-type: x mandatory;
+    overscroll-behavior: auto;
 }

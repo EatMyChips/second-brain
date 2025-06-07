@@ -30,7 +30,7 @@ pub struct AppState {
 }
 
 #[component]
-pub fn Tasks() -> Element {
+pub fn Todo() -> Element {
     // Time signals
     let current_day = use_signal(|| Local::now() );
     let selected_day = use_signal(|| *current_day.read() );
@@ -76,18 +76,19 @@ pub fn Tasks() -> Element {
             },
             ScrollState::Daily =>  {
                 if let Some(page) = &*tasks.read() {
-                    page.as_web_event().set_class_name("page daily")
+                    page.as_web_event().set_class_name("page daily");
+                    page.as_web_event().set_scroll_left(0);
                 }
                 if let Some(page) = &*calendar.read() {
-                    page.as_web_event().set_class_name("page daily")
+                    page.as_web_event().set_class_name("page daily");
                 }
             },
             ScrollState::Weekly =>  {
                 if let Some(page) = &*tasks.read() {
-                    page.as_web_event().set_class_name("page weekly")
+                    page.as_web_event().set_class_name("page weekly");
                 }
                 if let Some(page) = &*calendar.read() {
-                    page.as_web_event().set_class_name("page weekly")
+                    page.as_web_event().set_class_name("page weekly");
                 }
             },
         }
