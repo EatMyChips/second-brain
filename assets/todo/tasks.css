@@ -1,4 +1,4 @@
-.element{
+.element {
     flex-grow: 0;
     flex-shrink: 0;
 
@@ -7,8 +7,22 @@
 
     border-radius: 3rem;
     height: 100%;
-    width: 25vw;
+}
 
+.element.weekly {
+    width: 20vw;
+}
+
+.element.daily {
+    width: 25vw;
+}
+
+#todays-tasks {
+    scroll-snap-align: Start;
+}
+
+#task {
+    scroll-snap-align: End;
 }
 
 .header {

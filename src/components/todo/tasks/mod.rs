@@ -1,7 +1,9 @@
 use std::ops::Deref;
+use std::rc::Rc;
 use dioxus::prelude::*;
 use crate::backend::props::Task;
-use super::AppState;
+use super::{AppState, ScrollState};
+use dioxus::web::WebEventExt;
 
 const LISTS: Asset = asset!("/assets/todo/tasks.css");
 
@@ -16,6 +18,9 @@ pub fn List(props: ListProps) -> Element {
     // Date signals
     let selected_week = use_context::<AppState>().selected_week;
     let selected_day = use_context::<AppState>().selected_day;
+    let scroll_state = use_context::<AppState>().scroll_state;
+
+    let mut task_bar: Signal<Option<Rc<MountedData>>> = use_signal(|| None);
 
     let mut tasks = use_signal(|| vec!());
 
@@ -41,6 +46,26 @@ pub fn List(props: ListProps) -> Element {
         }
     });
 
+    let _ = use_resource(move || {
+        match *scroll_state.read() {
+            ScrollState::Rewards =>  {
+
+            },
+            ScrollState::Daily =>  {
+                if let Some(page) = &*task_bar.read() {
+                    page.as_web_event().set_class_name("element daily")
+                }
+            },
+            ScrollState::Weekly =>  {
+                if let Some(page) = &*task_bar.read() {
+                    page.as_web_event().set_class_name("element weekly")
+                }
+            },
+        }
+        async move{
+        }
+    });
+
     rsx!{
         match tasks_loading.read_unchecked().deref() {
             Some(_) => {
@@ -48,9 +73,12 @@ pub fn List(props: ListProps) -> Element {
                     document::Stylesheet { href: LISTS}
 
                     div{
-                        class: "element",
+                        class: "element daily",
                         id: id.clone(),
                         tabindex: "0",
+                        onmounted: move |element|  {
+                            task_bar.set(Some(element.data))
+                        },
                         onkeydown: move |event: Event<KeyboardData>| {
                             let id = id.clone();
                             async move {

@@ -15,46 +15,52 @@
     box-sizing: border-box;
 }
 
+/*rewards section styles*/
 #rewards.daily {
     width: 28vw;
     padding-left: 3vw;
     background-color: rgba(111, 115, 111, 0.2);
 }
 
-#calendar.daily {
-    width: 44vw;
-    padding-left: 3vw;
-    padding-right: 3vw;
-
+/*Calendar section styles*/
+#calendar{
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-content: center;
     gap: 2rem;
+}
+
+#calendar.daily {
+    width: 44vw;
+    padding-left: 3vw;
+    padding-right: 3vw;
+    scroll-snap-align: center;
+}
+
+#calendar.weekly {
+    width: 34vw;
+    padding-left: 2vw;
+    padding-right: 2vw;
+}
+
+/*Tasks section styles*/
+#tasks{
+    width: 64vw;
+    margin-right: 2vw;
+    scroll-snap-align: end;
 }
 
 #tasks.daily {
     display: flex;
     gap: 3vw;
-
-    width: 28vw;
-}
-
-#calendar.weekly {
-    width: 44vw;
-    padding-left: 3vw;
-    padding-right: 3vw;
-
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-content: center;
-    gap: 2rem;
+    overflow: hidden;
 }
 
 #tasks.weekly {
     display: flex;
-    gap: 3vw;
+    gap: 2vw;
 
-    width: 28vw;
+    overflow: scroll;
+    scroll-snap-type: x mandatory;
 }
