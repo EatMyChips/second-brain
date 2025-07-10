@@ -1,5 +1,5 @@
 use crate::components::todo::AppState;
-use chrono::{Datelike, Local, NaiveDate, Timelike};
+use chrono::{Datelike, Local, NaiveDate, TimeZone, Timelike, Weekday};
 use dioxus::prelude::*;
 use futures_util::stream::StreamExt;
 use gloo_timers::future::IntervalStream;
@@ -7,21 +7,6 @@ use std::rc::Rc;
 
 const CALENDAR: Asset = asset!("/assets/todo/calendar.css");
 const TODO: Asset = asset!("/assets/todo/todo.css");
-
-enum months {
-    Jan,
-    Feb,
-    Mar,
-    Apr,
-    May,
-    Jun,
-    Jul,
-    Aug,
-    Sep,
-    Oct,
-    Nov,
-    Dec,
-}
 
 #[component]
 pub fn Calendar(calendar: Signal<Option<Rc<MountedData>>>) -> Element {
@@ -43,7 +28,17 @@ pub fn Calendar(calendar: Signal<Option<Rc<MountedData>>>) -> Element {
 
 #[component]
 fn CalendarObj() -> Element {
-    let ThisMonthDays = use_signal(|| days_in_month(Local::now().year(), Local::now().month()));
+    let current_week = use_context::<AppState>().current_week;
+    let mut selected_week = use_context::<AppState>().selected_week;
+    let mut selected_day = use_context::<AppState>().selected_day;
+    let current_day = use_context::<AppState>().current_day;
+
+    let active_month_days = use_signal(|| days_in_month(selected_day.read().year(), selected_day.read().month()));
+    let first_day_count = first_day_of_month(selected_day.read().year(), selected_day.read().month());
+
+    let total_days = active_month_days + first_day_count;
+
+    let left_over = if total_days < 36 { 35 - total_days + 2 } else { 42 - total_days + 2};
 
     rsx! {
         div {
@@ -54,7 +49,15 @@ fn CalendarObj() -> Element {
             }
             div {
                 class: "days",
-                for i in 1..4 {
+                for i in 1..first_day_count {
+                    div {
+                        class: "day inactive",
+                        h3 {
+                            "{i}"
+                        }
+                    }
+                }
+                for i in 1..(*active_month_days.read() + 1) {
                     div {
                         class: "day",
                         h3 {
@@ -62,17 +65,9 @@ fn CalendarObj() -> Element {
                         }
                     }
                 }
-                for i in 1..(*ThisMonthDays.read() + 1) {
+                for i in 1..left_over{
                     div {
-                        class: "day",
-                        h3 {
-                            "{i}"
-                        }
-                    }
-                }
-                for i in 1..2{
-                    div {
-                        class: "day",
+                        class: "day inactive",
                         h3 {
                             "{i}"
                         }
@@ -96,6 +91,23 @@ fn days_in_month(year: i32, month: u32) -> u32 {
     let last_day = first_of_next_month.pred_opt().unwrap();
 
     last_day.day()
+}
+
+fn first_day_of_month(year: i32, month: u32) -> u32 {
+    let first_day = Local.ymd(year, month, 1);
+    weekday_to_number(first_day.weekday())
+}
+
+fn weekday_to_number(day: Weekday) -> u32 {
+    match day {
+        Weekday::Mon => 1,
+        Weekday::Tue => 2,
+        Weekday::Wed => 3,
+        Weekday::Thu => 4,
+        Weekday::Fri => 5,
+        Weekday::Sat => 6,
+        Weekday::Sun => 7,
+    }
 }
 
 #[component]

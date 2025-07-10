@@ -16,7 +16,7 @@
     flex-grow: 5;
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    grid-template-rows: repeat(5, 1fr);
+    grid-template-rows: repeat(6, 1fr);
     margin: 5% 5%;
     width: 90%;
 }
@@ -24,6 +24,10 @@
 .day {
     text-align: center;
     border: 2px solid black;
+}
+
+.inactive{
+    color: #6f736f;
 }
 
 .clock {
