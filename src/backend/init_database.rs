@@ -1,5 +1,4 @@
-use rusqlite::{params, Connection, ToSql, Result as SqlResult};
-
+use rusqlite::{params, Connection, Result as SqlResult, ToSql};
 
 thread_local! {
     pub static DB: rusqlite::Connection = {

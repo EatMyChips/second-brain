@@ -1,10 +1,10 @@
 use dioxus::prelude::*;
 
 #[cfg(feature = "server")]
-use rusqlite::{params, Connection, ToSql, Result as SqlResult};
-#[cfg(feature = "server")]
 use super::super::init_database::DB;
-use super::super::props::{Task, NewTask};
+use super::super::props::{NewTask, Task};
+#[cfg(feature = "server")]
+use rusqlite::{params, Connection, Result as SqlResult, ToSql};
 
 #[server]
 pub async fn post_tasks(task: NewTask) -> Result<Option<i64>, ServerFnError> {
@@ -13,7 +13,7 @@ pub async fn post_tasks(task: NewTask) -> Result<Option<i64>, ServerFnError> {
         // First, look up the container ID
         let mut stmt = f.prepare("SELECT id FROM containers WHERE title = ?1")?;
         let mut rows = stmt.query(params![task.container_id])?;
-        
+
         let container_id = if let Some(row) = rows.next()? {
             row.get::<_, i32>(0)?
         } else {
@@ -62,24 +62,28 @@ pub async fn delete_tasks(id: i32) -> Result<(), ServerFnError> {
 }
 
 #[server]
-pub async fn get_tasks(container_title: String, current_week: String, current_day: Option<String>) -> Result<Vec<i64>, ServerFnError> {
+pub async fn get_tasks(
+    container_title: String,
+    current_week: String,
+    current_day: Option<String>,
+) -> Result<Vec<i64>, ServerFnError> {
     DB.with(|f| {
         let mut stmt;
         let mut rows;
-        
+
         // Use JOIN to fetch todo based on the container title
         if let Some(day) = &current_day {
             stmt = f.prepare(
                 "SELECT t.id FROM todo t
                  JOIN containers c ON t.container_id = c.id
-                 WHERE c.title = ?1 AND t.weeks = ?2 AND t.days = ?3"
+                 WHERE c.title = ?1 AND t.weeks = ?2 AND t.days = ?3",
             )?;
             rows = stmt.query(params![container_title, current_week, current_day])?;
         } else {
             stmt = f.prepare(
                 "SELECT t.id FROM todo t
                  JOIN containers c ON t.container_id = c.id
-                 WHERE c.title = ?1 AND t.weeks = ?2 AND t.days IS NULL"
+                 WHERE c.title = ?1 AND t.weeks = ?2 AND t.days IS NULL",
             )?;
             rows = stmt.query(params![container_title, current_week])?;
         }
@@ -99,7 +103,7 @@ pub async fn get_task(id: i64) -> Result<Option<Task>, ServerFnError> {
         let mut stmt = f.prepare(
             "SELECT id, title, info, weeks, days, container_id
              FROM todo
-             WHERE id = ?1"
+             WHERE id = ?1",
         )?;
         let mut rows = stmt.query(params![id])?;
 

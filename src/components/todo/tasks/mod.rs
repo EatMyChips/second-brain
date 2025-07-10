@@ -1,9 +1,9 @@
+use super::{AppState, ScrollState};
+use crate::backend::props::Task;
+use dioxus::prelude::*;
+use dioxus::web::WebEventExt;
 use std::ops::Deref;
 use std::rc::Rc;
-use dioxus::prelude::*;
-use crate::backend::props::Task;
-use super::{AppState, ScrollState};
-use dioxus::web::WebEventExt;
 
 const LISTS: Asset = asset!("/assets/todo/tasks.css");
 
@@ -22,7 +22,7 @@ pub fn List(props: ListProps) -> Element {
 
     let mut task_bar: Signal<Option<Rc<MountedData>>> = use_signal(|| None);
 
-    let mut tasks = use_signal(|| vec!());
+    let mut tasks = use_signal(|| vec![]);
 
     // Props data
     let id = props.id.clone();
@@ -48,25 +48,22 @@ pub fn List(props: ListProps) -> Element {
 
     let _ = use_resource(move || {
         match *scroll_state.read() {
-            ScrollState::Rewards =>  {
-
-            },
-            ScrollState::Daily =>  {
+            ScrollState::Rewards => {}
+            ScrollState::Daily => {
                 if let Some(page) = &*task_bar.read() {
                     page.as_web_event().set_class_name("element daily")
                 }
-            },
-            ScrollState::Weekly =>  {
+            }
+            ScrollState::Weekly => {
                 if let Some(page) = &*task_bar.read() {
                     page.as_web_event().set_class_name("element weekly")
                 }
-            },
+            }
         }
-        async move{
-        }
+        async move {}
     });
 
-    rsx!{
+    rsx! {
         match tasks_loading.read_unchecked().deref() {
             Some(_) => {
                 rsx! {
@@ -127,15 +124,13 @@ pub fn List(props: ListProps) -> Element {
 }
 
 #[component]
-fn TaskComp(id: i64) -> Element{
+fn TaskComp(id: i64) -> Element {
     let task = use_future(move || {
         let id = id.clone();
-        async move {
-            Task::get(id).await
-        }
+        async move { Task::get(id).await }
     });
 
-    rsx!{
+    rsx! {
         div {
             class: "task",
             input {
@@ -159,7 +154,7 @@ struct ListHeaderProps {
 
 #[component]
 fn ListHeader(props: ListHeaderProps) -> Element {
-    rsx!{
+    rsx! {
         div{
             class: "header",
             h2 { {props.title} }
@@ -173,10 +168,7 @@ fn ListHeader(props: ListHeaderProps) -> Element {
 
 fn string_split(input: String) -> Vec<String> {
     if input.contains('~') {
-        input
-            .split('~')
-            .map(|s| s.to_string())
-            .collect()
+        input.split('~').map(|s| s.to_string()).collect()
     } else {
         vec!["".to_string(), input]
     }

@@ -1,16 +1,16 @@
 mod calendar;
-mod rewards;
 mod header;
+mod rewards;
 mod tasks;
 
-use std::rc::Rc;
-use dioxus::prelude::*;
-use chrono::{DateTime, Datelike, Duration, Local};
-use dioxus::web::WebEventExt;
-use crate::components::todo::tasks::*;
 use crate::components::todo::calendar::*;
-use crate::components::todo::rewards::*;
 use crate::components::todo::header::*;
+use crate::components::todo::rewards::*;
+use crate::components::todo::tasks::*;
+use chrono::{DateTime, Datelike, Duration, Local};
+use dioxus::prelude::*;
+use dioxus::web::WebEventExt;
+use std::rc::Rc;
 
 const TASKS: Asset = asset!("assets/todo/todo.css");
 
@@ -32,14 +32,14 @@ pub struct AppState {
 #[component]
 pub fn Todo() -> Element {
     // Time signals
-    let current_day = use_signal(|| Local::now() );
-    let selected_day = use_signal(|| *current_day.read() );
+    let current_day = use_signal(|| Local::now());
+    let selected_day = use_signal(|| *current_day.read());
     let current_week = use_signal(|| {
         let dt: DateTime<Local> = *current_day.read();
         let weekday: u32 = dt.weekday().num_days_from_monday();
         dt - Duration::days(weekday.into())
     });
-    let selected_week = use_signal(|| *current_week.read() );
+    let selected_week = use_signal(|| *current_week.read());
 
     //Scroll state signals
     let mut scroll_state = use_signal(|| ScrollState::Daily);
@@ -60,21 +60,17 @@ pub fn Todo() -> Element {
     let _ = use_resource(move || {
         let pos = *scroll_position.read();
         if pos >= 350.0 {
-            scroll_state.set( ScrollState::Weekly );
+            scroll_state.set(ScrollState::Weekly);
+        } else if pos < 350.0 {
+            scroll_state.set(ScrollState::Daily);
         }
-        else if pos < 350.0 {
-            scroll_state.set( ScrollState::Daily );
-        }
-        async move{
-        }
+        async move {}
     });
 
     let _ = use_resource(move || {
         match *scroll_state.read() {
-            ScrollState::Rewards =>  {
-
-            },
-            ScrollState::Daily =>  {
+            ScrollState::Rewards => {}
+            ScrollState::Daily => {
                 if let Some(page) = &*tasks.read() {
                     page.as_web_event().set_class_name("page daily");
                     page.as_web_event().set_scroll_left(0);
@@ -82,21 +78,20 @@ pub fn Todo() -> Element {
                 if let Some(page) = &*calendar.read() {
                     page.as_web_event().set_class_name("page daily");
                 }
-            },
-            ScrollState::Weekly =>  {
+            }
+            ScrollState::Weekly => {
                 if let Some(page) = &*tasks.read() {
                     page.as_web_event().set_class_name("page weekly");
                 }
                 if let Some(page) = &*calendar.read() {
                     page.as_web_event().set_class_name("page weekly");
                 }
-            },
+            }
         }
-        async move{
-        }
+        async move {}
     });
 
-    rsx!{
+    rsx! {
         document::Stylesheet { href: TASKS}
 
         Header {}
@@ -113,7 +108,7 @@ pub fn Todo() -> Element {
                 if let Some(page) = scroll_page() {
                     let scroll_pos = page.as_web_event().scroll_left() as f64;
                     scroll_position.set(scroll_pos);
-                    log::info!("{scroll_pos}");
+                    // log::info!("{scroll_pos}");
                 }
             },
             div {

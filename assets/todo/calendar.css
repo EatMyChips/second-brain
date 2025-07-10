@@ -14,16 +14,16 @@
 
 .days {
     flex-grow: 5;
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    grid-template-rows: repeat(5, 1fr);
     margin: 5% 5%;
     width: 90%;
 }
 
 .day {
-    width: 14.2857142857%;
-    height: 20%;
     text-align: center;
+    border: 2px solid black;
 }
 
 .clock {
