@@ -1,4 +1,4 @@
-use crate::components::todo::AppState;
+use crate::components::todo::{AppState, Month};
 use chrono::{Datelike, Local, NaiveDate, TimeZone, Timelike, Weekday};
 use dioxus::prelude::*;
 use futures_util::stream::StreamExt;
@@ -35,62 +35,88 @@ fn CalendarObj() -> Element {
 
     let active_month_days = use_signal(|| days_in_month(selected_day.read().year(), selected_day.read().month()));
     let first_day_count = first_day_of_month(selected_day.read().year(), selected_day.read().month());
-
+    let month_name = selected_day.read().format("%B").to_string();
     let total_days = active_month_days + first_day_count;
-
     let left_over = if total_days < 36 { 35 - total_days + 2 } else { 42 - total_days + 2};
 
     rsx! {
         div {
             class: "calendar",
-             h3 {
+            div {
                 class: "month",
-                "June"
+                h3 {
+                    {month_name}
+                }
+                button {
+                    onclick: move |_|{
+
+                    },
+                    "<-"
+                }
+                button {
+                    onclick: move |_|{
+
+                    },
+                    "->"
+                }
             }
             div {
                 class: "days",
                 for i in 1..first_day_count {
-                    div {
-                        class: "day inactive",
-                        h3 {
-                            "{i}"
-                        }
-                    }
+                    Day { number: i, inactive: true }
                 }
                 for i in 1..(*active_month_days.read() + 1) {
-                    div {
-                        class: "day",
-                        h3 {
-                            "{i}"
-                        }
-                    }
+                    Day { number: i, inactive: false }
                 }
                 for i in 1..left_over{
-                    div {
-                        class: "day inactive",
-                        h3 {
-                            "{i}"
-                        }
-                    }
+                    Day { number: i, inactive: true }
                 }
             }
         }
     }
 }
 
-fn days_in_month(year: i32, month: u32) -> u32 {
-    // First day of the next month
-    let (next_year, next_month) = if month == 12 {
-        (year + 1, 1)
-    } else {
-        (year, month + 1)
-    };
+#[component]
+fn Day(number: u32, inactive: bool) -> Element {
+    let class_name = if inactive { "day inactive" } else { "day" };
 
-    // Get the last day of the current month by subtracting 1 day from the 1st of the next month
-    let first_of_next_month = NaiveDate::from_ymd_opt(next_year, next_month, 1).unwrap();
+    rsx! {
+        div {
+            class: "{class_name}",
+            h3 { "{number}" }
+        }
+    }
+}
+
+fn days_in_month(year: i32, month: u32) -> u32 {
+    let next_date = increase_month(Month{year, month});
+
+    let first_of_next_month = NaiveDate::from_ymd_opt(next_date.year, next_date.month, 1).unwrap();
     let last_day = first_of_next_month.pred_opt().unwrap();
 
     last_day.day()
+}
+
+fn increase_month(mut month: Month) -> Month{
+    match month.month {
+        12 => {
+            Month { year: month.year + 1, month: 1 }
+        }
+        _ => {
+            Month { year: month.year, month: month.month + 1 }
+        }
+    }
+}
+
+fn decrease_month(mut month: Month) -> Month{
+    match month.month {
+        1 => {
+            Month { year: month.year - 1, month: 12 }
+        }
+        _ => {
+            Month { year: month.year, month: month.month - 1 }
+        }
+    }
 }
 
 fn first_day_of_month(year: i32, month: u32) -> u32 {

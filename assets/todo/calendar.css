@@ -10,13 +10,19 @@
 
 .month {
     flex-grow: 1;
+    margin: 0 5%;
+}
+
+.month h3 {
+    font-size: 2rem;
+    margin: 2vh 0;
 }
 
 .days {
     flex-grow: 5;
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    grid-template-rows: repeat(6, 1fr);
+    grid-template-rows: repeat(5, 1fr);
     margin: 5% 5%;
     width: 90%;
 }
