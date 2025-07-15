@@ -1,6 +1,6 @@
 use std::cmp::PartialEq;
 use crate::components::todo::{AppState};
-use chrono::{Datelike, Local, NaiveDate, TimeZone, Timelike, Weekday};
+use chrono::{DateTime, Datelike, Duration, Local, NaiveDate, TimeZone, Timelike, Weekday};
 use dioxus::prelude::*;
 use futures_util::stream::StreamExt;
 use gloo_timers::future::IntervalStream;
@@ -36,12 +36,12 @@ pub fn Calendar(calendar: Signal<Option<Rc<MountedData>>>) -> Element {
 #[component]
 fn CalendarObj() -> Element {
     // get all date props
-    let current_week = use_context::<AppState>().current_week;
+    let mut selected_month = use_context::<AppState>().selected_month;
     let mut selected_week = use_context::<AppState>().selected_week;
     let mut selected_day = use_context::<AppState>().selected_day;
-    let current_day = use_context::<AppState>().current_day;
-    let mut selected_month = use_context::<AppState>().selected_month;
     let current_month = use_context::<AppState>().current_month;
+    let current_week = use_context::<AppState>().current_week;
+    let current_day = use_context::<AppState>().current_day;
 
     // Instantiate display data
     let mut active_month_days= use_signal(|| 0);
@@ -59,7 +59,7 @@ fn CalendarObj() -> Element {
 
         active_month_days.set(days_in_month(selected_month.clone()));
 
-        // Selected day and week
+        // Selected day
         if (current_month.month == selected_month.month) && (current_month.year == selected_month.year)  {
             selected_day.set(*current_day.read());
         }
@@ -85,9 +85,16 @@ fn CalendarObj() -> Element {
 
     // Set display data on selected day change
     let _ = use_resource( move || {
-        month_name.set(selected_day.read().format("%B").to_string());
+        let selected_day = selected_day.read();
+        month_name.set(selected_day.format("%B").to_string());
+        selected_week.set({
+            let dt: DateTime<Local> = *selected_day;
+            let weekday: u32 = dt.weekday().num_days_from_monday();
+            dt - Duration::days(weekday.into())
+        });
         async move {}
     });
+
     rsx! {
         div {
             class: "calendar",
