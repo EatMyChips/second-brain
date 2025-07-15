@@ -1,18 +1,14 @@
-use serde::{Deserialize, Serialize};
 use crate::{delete_tasks, get_task, get_tasks, post_tasks, put_tasks};
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Serialize, Deserialize)]
-#[derive(Clone)]
-pub struct TaskInput {
-    pub title: String,
-    pub info: String,
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct NewTask {
     pub week: Option<String>,
     pub day: Option<String>,
     pub container_id: String,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-#[derive(Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Task {
     pub id: i32,
     pub title: String,
@@ -22,14 +18,19 @@ pub struct Task {
     pub container_id: i32,
 }
 
-impl Task{
-    pub async fn new(input: TaskInput) -> Task {
-        //TODO:: remove the unwraps and replace with error handling
-
-        Task::get_with_id(post_tasks(input).await.expect("Panic").unwrap()).await
+impl Task {
+    pub async fn new(week: Option<String>, day: Option<String>, id: String) -> i64 {
+        post_tasks(NewTask {
+            week,
+            day,
+            container_id: id,
+        })
+        .await
+        .expect("Panic")
+        .unwrap()
     }
 
-    async fn get_with_id(id: i32) -> Task {
+    pub async fn get(id: i64) -> Self {
         get_task(id).await.expect("Panic").unwrap()
     }
 
@@ -43,7 +44,9 @@ impl Task{
         delete_tasks(self.id).await.expect("Panic");
     }
 
-    pub async fn get_all(title: String, week: String) -> Vec<Self>{
-        get_tasks(title, week).await.expect("Panic")
+    pub async fn get_all(title: String, week: String, day: Option<String>) -> Vec<i64> {
+        let out = get_tasks(title, week, day).await.expect("Panic");
+        log::info!("{out:?}");
+        out
     }
 }

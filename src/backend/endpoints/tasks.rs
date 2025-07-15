@@ -1,13 +1,14 @@
 use dioxus::prelude::*;
 
 #[cfg(feature = "server")]
-use rusqlite::{params, Connection, ToSql, Result as SqlResult};
-#[cfg(feature = "server")]
 use super::super::init_database::DB;
-use super::super::props::{Task, TaskInput};
+use super::super::props::{NewTask, Task};
+#[cfg(feature = "server")]
+use rusqlite::{params, Connection, Result as SqlResult, ToSql};
 
 #[server]
-pub async fn post_tasks(task: TaskInput) -> Result<Option<i32>, ServerFnError> {
+pub async fn post_tasks(task: NewTask) -> Result<Option<i64>, ServerFnError> {
+    let empty_string: String = String::new();
     DB.with(|f| {
         // First, look up the container ID
         let mut stmt = f.prepare("SELECT id FROM containers WHERE title = ?1")?;
@@ -20,17 +21,17 @@ pub async fn post_tasks(task: TaskInput) -> Result<Option<i32>, ServerFnError> {
         };
 
         f.execute(
-            "INSERT INTO tasks (title, info, weeks, days, container_id) VALUES (?1, ?2, ?3, ?4, ?5)",
+            "INSERT INTO todo (title, info, weeks, days, container_id) VALUES (?1, ?2, ?3, ?4, ?5)",
             params![
-                task.title,
-                task.info,
+                empty_string,
+                empty_string,
                 task.week.as_deref(),
                 task.day.as_deref(),
                 container_id,
             ],
         )?;
 
-        Ok(Some(f.last_insert_rowid() as i32))
+        Ok(Some(f.last_insert_rowid()))
     })
 }
 
@@ -38,7 +39,7 @@ pub async fn post_tasks(task: TaskInput) -> Result<Option<i32>, ServerFnError> {
 pub async fn put_tasks(task: Task) -> Result<(), ServerFnError> {
     DB.with(|f| {
         f.execute(
-            "UPDATE tasks SET title = ?1, info = ?2, weeks = ?3, days = ?4, container_id = ?5 WHERE id = ?6",
+            "UPDATE todo SET title = ?1, info = ?2, weeks = ?3, days = ?4, container_id = ?5 WHERE id = ?6",
             params![
                 task.title,
                 task.info,
@@ -55,48 +56,54 @@ pub async fn put_tasks(task: Task) -> Result<(), ServerFnError> {
 #[server]
 pub async fn delete_tasks(id: i32) -> Result<(), ServerFnError> {
     DB.with(|f| {
-        f.execute("DELETE FROM tasks WHERE id = ?1", params![id])?;
+        f.execute("DELETE FROM todo WHERE id = ?1", params![id])?;
         Ok(())
     })
 }
 
 #[server]
-pub async fn get_tasks(container_title: String, current_week: String) -> Result<Vec<Task>, ServerFnError> {
+pub async fn get_tasks(
+    container_title: String,
+    current_week: String,
+    current_day: Option<String>,
+) -> Result<Vec<i64>, ServerFnError> {
     DB.with(|f| {
-        // Use JOIN to fetch tasks based on the container title
-        let mut stmt = f.prepare(
-            "SELECT t.id, t.title, t.info, t.weeks, t.days, t.container_id
-             FROM tasks t
-             JOIN containers c ON t.container_id = c.id
-             WHERE c.title = ?1 AND t.weeks = ?2"
-        )?;
-        let mut rows = stmt.query(params![container_title, current_week])?;
+        let mut stmt;
+        let mut rows;
 
-        let mut tasks = Vec::new();
-
-        while let Some(row) = rows.next()? {
-            let task = Task {
-                id: row.get(0)?,
-                title: row.get(1)?,
-                info: row.get(2)?,
-                week: row.get(3)?,
-                day: row.get(4)?,
-                container_id: row.get(5)?,
-            };
-            tasks.push(task);
+        // Use JOIN to fetch todo based on the container title
+        if let Some(day) = &current_day {
+            stmt = f.prepare(
+                "SELECT t.id FROM todo t
+                 JOIN containers c ON t.container_id = c.id
+                 WHERE c.title = ?1 AND t.weeks = ?2 AND t.days = ?3",
+            )?;
+            rows = stmt.query(params![container_title, current_week, current_day])?;
+        } else {
+            stmt = f.prepare(
+                "SELECT t.id FROM todo t
+                 JOIN containers c ON t.container_id = c.id
+                 WHERE c.title = ?1 AND t.weeks = ?2 AND t.days IS NULL",
+            )?;
+            rows = stmt.query(params![container_title, current_week])?;
         }
 
+        let mut tasks = Vec::new();
+        while let Some(row) = rows.next()? {
+            let id: i64 = row.get(0)?;
+            tasks.push(id);
+        }
         Ok(tasks)
     })
 }
 
 #[server]
-pub async fn get_task(id: i32) -> Result<Option<Task>, ServerFnError> {
+pub async fn get_task(id: i64) -> Result<Option<Task>, ServerFnError> {
     DB.with(|f| {
         let mut stmt = f.prepare(
             "SELECT id, title, info, weeks, days, container_id
-             FROM tasks
-             WHERE id = ?1"
+             FROM todo
+             WHERE id = ?1",
         )?;
         let mut rows = stmt.query(params![id])?;
 
