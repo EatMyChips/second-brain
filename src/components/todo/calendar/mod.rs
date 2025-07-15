@@ -64,8 +64,7 @@ fn CalendarObj() -> Element {
             selected_day.set(*current_day.read());
         }
         else {
-            let naive = NaiveDate::from_ymd_opt(selected_month.year, selected_month.month, 1).unwrap();
-            selected_day.set(Local.from_local_datetime(&naive.and_hms_opt(0, 0, 0).unwrap()).unwrap());
+            selected_day.set(NaiveDate::from_ymd_opt(selected_month.year, selected_month.month, 1).unwrap());
         }
 
         // Working out day counts
@@ -88,9 +87,9 @@ fn CalendarObj() -> Element {
         let selected_day = selected_day.read();
         month_name.set(selected_day.format("%B").to_string());
         selected_week.set({
-            let dt: DateTime<Local> = *selected_day;
-            let weekday: u32 = dt.weekday().num_days_from_monday();
-            dt - Duration::days(weekday.into())
+            let date = *selected_day;
+            let weekday: u32 = date.weekday().num_days_from_monday();
+            date - Duration::days(weekday.into())
         });
         async move {}
     });
@@ -122,13 +121,13 @@ fn CalendarObj() -> Element {
                 class: "days",
                 style: "grid-template-rows: repeat({row_count}, 1fr);",
                 for i in (prev_month_days - *first_day_count.read() + 2)..(prev_month_days + 1) {
-                    Day { number: i, inactive: true }
+                    Day { number: i, inactive: true, selected: false }
                 }
                 for i in 1..(*active_month_days.read() + 1) {
-                    Day { number: i, inactive: false }
+                    Day { number: i, inactive: false, selected: selected_day.read().day() == i }
                 }
                 for i in 1..*left_over.read(){
-                    Day { number: i, inactive: true }
+                    Day { number: i, inactive: true, selected: false }
                 }
             }
         }
@@ -136,12 +135,20 @@ fn CalendarObj() -> Element {
 }
 
 #[component]
-fn Day(number: u32, inactive: bool) -> Element {
-    let class_name = if inactive { "day inactive" } else { "day" };
+fn Day(number: u32, inactive: bool, selected: bool) -> Element {
+    let class_name = if inactive { "day inactive" } else if selected { "day selected" } else { "day" };
+    let mut selected_day = use_context::<AppState>().selected_day;
+    let month = use_context::<AppState>().selected_month;
 
     rsx! {
         div {
             class: "{class_name}",
+            tabindex: 1,
+            onfocus: move |_| {
+                if !inactive {
+                    selected_day.set(NaiveDate::from_ymd_opt(month.read().year, month.read().month, number).unwrap());
+                }
+            },
             h3 { "{number}" }
         }
     }

@@ -7,7 +7,7 @@ use crate::components::todo::calendar::*;
 use crate::components::todo::header::*;
 use crate::components::todo::rewards::*;
 use crate::components::todo::tasks::*;
-use chrono::{DateTime, Datelike, Duration, Local, TimeZone};
+use chrono::{DateTime, Datelike, Duration, Local, NaiveDate};
 use dioxus::prelude::*;
 use dioxus::web::WebEventExt;
 use std::rc::Rc;
@@ -22,24 +22,24 @@ enum ScrollState {
 
 #[derive(Clone, Copy)]
 pub struct AppState {
-    selected_week: Signal<DateTime<Local>>,
-    selected_day: Signal<DateTime<Local>>,
+    selected_week: Signal<NaiveDate>,
+    selected_day: Signal<NaiveDate>,
     selected_month: Signal<Month>,
     current_month: Signal<Month>,
-    current_week: Signal<DateTime<Local>>,
-    current_day: Signal<DateTime<Local>>,
+    current_week: Signal<NaiveDate>,
+    current_day: Signal<NaiveDate>,
     scroll_state: Signal<ScrollState>,
 }
 
 #[component]
 pub fn Todo() -> Element {
     // Time signals
-    let current_day = use_signal(|| Local::now());
+    let current_day = use_signal(|| Local::now().date_naive());
     let selected_day = use_signal(|| *current_day.read());
     let current_week = use_signal(|| {
-        let dt: DateTime<Local> = *current_day.read();
-        let weekday: u32 = dt.weekday().num_days_from_monday();
-        dt - Duration::days(weekday.into())
+        let date = *current_day.read();
+        let weekday: u32 = date.weekday().num_days_from_monday();
+        date - Duration::days(weekday.into())
     });
     let selected_week = use_signal(|| *current_week.read());
     let current_month = use_signal(|| Month {year: current_day.read().year(), month: current_day.read().month()});

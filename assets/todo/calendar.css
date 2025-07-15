@@ -36,10 +36,15 @@
 
 .day h3 {
     margin: 0;
+    font-size: 1.5rem;
 }
 
-.inactive{
+.inactive {
     color: #6f736f;
+}
+
+.day.selected {
+    background-color: var(--accent2);
 }
 
 .clock {
