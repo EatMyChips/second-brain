@@ -1,0 +1,69 @@
+.calendar {
+    flex-grow: 0;
+    flex-shrink: 0;
+    width: 100%;
+    height: calc(82% - 2rem);
+    background-color: var(--accent1);
+    border-radius: 2rem;
+
+    display: flex;
+    flex-direction: column;
+}
+
+.month {
+    flex-grow: 1;
+    margin: 0 5%;
+}
+
+.month h3 {
+    font-size: 2rem;
+    margin: 2vh 0;
+}
+
+.days {
+    flex-grow: 5;
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    height: 100%;
+    margin: 5% 5%;
+    width: 90%;
+}
+
+.day {
+    text-align: center;
+    border: 2px solid black;
+}
+
+.day h3 {
+    margin: 0;
+}
+
+.inactive{
+    color: #6f736f;
+}
+
+.clock {
+    flex-grow: 0;
+    flex-shrink: 0;
+    width: 100%;
+    height: 18%;
+
+    display: flex;
+    justify-content: space-between;
+}
+
+.clock-digits {
+    margin: 0;
+    font-size: 6rem;
+    width: 15%;
+    text-align: center;
+    background-color: var(--accent1);
+    border-radius: 1rem;
+}
+
+.clock-break {
+    margin: 0;
+    font-size: 6rem;
+    width: 5%;
+    text-align: center;
+}

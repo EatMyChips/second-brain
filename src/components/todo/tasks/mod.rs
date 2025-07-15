@@ -1,9 +1,11 @@
-use std::ops::Deref;
-use dioxus::prelude::*;
+use super::{AppState, ScrollState};
 use crate::backend::props::Task;
-use super::AppState;
+use dioxus::prelude::*;
+use dioxus::web::WebEventExt;
+use std::ops::Deref;
+use std::rc::Rc;
 
-const LISTS: Asset = asset!("/assets/tasks/lists.css");
+const LISTS: Asset = asset!("/assets/todo/tasks.css");
 
 #[derive(PartialEq, Props, Clone)]
 pub struct ListProps {
@@ -16,18 +18,21 @@ pub fn List(props: ListProps) -> Element {
     // Date signals
     let selected_week = use_context::<AppState>().selected_week;
     let selected_day = use_context::<AppState>().selected_day;
+    let scroll_state = use_context::<AppState>().scroll_state;
 
-    let mut tasks = use_signal(|| vec!());
+    let mut task_bar: Signal<Option<Rc<MountedData>>> = use_signal(|| None);
+
+    let mut tasks = use_signal(|| vec![]);
 
     // Props data
     let id = props.id.clone();
 
-    // Get tasks if selected_week or selected_day updates
+    // Get todo if selected_week or selected_day updates
     let tasks_loading = use_resource(move || {
         let id: String = props.id.clone();
 
         // get current dates
-        let day = if id == "todays-tasks" {
+        let day = if id == "todays-todo" {
             Some(selected_day.read().format("%d/%m/%Y").to_string())
         } else {
             None
@@ -41,22 +46,42 @@ pub fn List(props: ListProps) -> Element {
         }
     });
 
-    rsx!{
+    let _ = use_resource(move || {
+        match *scroll_state.read() {
+            ScrollState::Rewards => {}
+            ScrollState::Daily => {
+                if let Some(page) = &*task_bar.read() {
+                    page.as_web_event().set_class_name("element daily")
+                }
+            }
+            ScrollState::Weekly => {
+                if let Some(page) = &*task_bar.read() {
+                    page.as_web_event().set_class_name("element weekly")
+                }
+            }
+        }
+        async move {}
+    });
+
+    rsx! {
         match tasks_loading.read_unchecked().deref() {
             Some(_) => {
                 rsx! {
                     document::Stylesheet { href: LISTS}
 
                     div{
-                        class: "element",
+                        class: "element daily",
                         id: id.clone(),
                         tabindex: "0",
+                        onmounted: move |element|  {
+                            task_bar.set(Some(element.data))
+                        },
                         onkeydown: move |event: Event<KeyboardData>| {
                             let id = id.clone();
                             async move {
                                 let key = event.data.key();
                                 if key == Key::Enter {
-                                    let day = if id == "todays-tasks" {
+                                    let day = if id == "todays-todo" {
                                         Some(selected_day.read().format("%d/%m/%Y").to_string())
                                     } else {
                                         None
@@ -99,15 +124,13 @@ pub fn List(props: ListProps) -> Element {
 }
 
 #[component]
-fn TaskComp(id: i64) -> Element{
+fn TaskComp(id: i64) -> Element {
     let task = use_future(move || {
         let id = id.clone();
-        async move {
-            Task::get(id).await
-        }
+        async move { Task::get(id).await }
     });
 
-    rsx!{
+    rsx! {
         div {
             class: "task",
             input {
@@ -131,12 +154,12 @@ struct ListHeaderProps {
 
 #[component]
 fn ListHeader(props: ListHeaderProps) -> Element {
-    rsx!{
+    rsx! {
         div{
             class: "header",
             h2 { {props.title} }
 
-            // if props.id == "todays-tasks"{
+            // if props.id == "todays-todo"{
             //     DailyTaskSwitcher { }
             // }
         }
@@ -145,10 +168,7 @@ fn ListHeader(props: ListHeaderProps) -> Element {
 
 fn string_split(input: String) -> Vec<String> {
     if input.contains('~') {
-        input
-            .split('~')
-            .map(|s| s.to_string())
-            .collect()
+        input.split('~').map(|s| s.to_string()).collect()
     } else {
         vec!["".to_string(), input]
     }

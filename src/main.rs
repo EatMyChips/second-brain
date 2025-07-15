@@ -1,16 +1,16 @@
-mod components;
 mod backend;
+mod components;
 
-use dioxus::prelude::*;
-use components::*;
 pub use backend::*;
+use components::*;
+use dioxus::prelude::*;
 
 const GLOBAL: Asset = asset!("assets/global.css");
 
 #[derive(Routable, Clone, PartialEq)]
 enum Route {
-    #[route("/tasks")]
-    Tasks {},
+    #[route("/todo")]
+    Todo {},
 }
 
 // This is new in 0.6: it handles platform-specific launching
