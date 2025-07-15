@@ -31,12 +31,6 @@ pub struct AppState {
     scroll_state: Signal<ScrollState>,
 }
 
-#[derive(Clone)]
-struct Month {
-    year: i32,
-    month: u32
-}
-
 #[component]
 pub fn Todo() -> Element {
     // Time signals
