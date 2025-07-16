@@ -32,7 +32,7 @@ pub fn List(props: ListProps) -> Element {
         let id: String = props.id.clone();
 
         // get current dates
-        let day = if id == "todays-todo" {
+        let day = if id == "todays-tasks" {
             Some(selected_day.read().format("%d/%m/%Y").to_string())
         } else {
             None
@@ -81,7 +81,7 @@ pub fn List(props: ListProps) -> Element {
                             async move {
                                 let key = event.data.key();
                                 if key == Key::Enter {
-                                    let day = if id == "todays-todo" {
+                                    let day = if id == "todays-tasks" {
                                         Some(selected_day.read().format("%d/%m/%Y").to_string())
                                     } else {
                                         None

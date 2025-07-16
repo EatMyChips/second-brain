@@ -2,7 +2,7 @@ use rusqlite::{params, Connection, Result as SqlResult, ToSql};
 
 thread_local! {
     pub static DB: rusqlite::Connection = {
-        let conn = rusqlite::Connection::open("todo.db").expect("Failed to open database");
+        let conn = rusqlite::Connection::open("tasks.db").expect("Failed to open database");
         println!("Database connection created!");
         conn.execute_batch(
             "
@@ -24,7 +24,7 @@ thread_local! {
             );
 
             -- Insert sample data
-            -- INSERT OR IGNORE INTO containers (id, title) VALUES (1, 'todays-todo'), (2, 'professional'), (3, 'personal');
+            -- INSERT OR IGNORE INTO containers (id, title) VALUES (1, 'todays-tasks'), (2, 'professional'), (3, 'personal');
             ",
         ).unwrap();
 
