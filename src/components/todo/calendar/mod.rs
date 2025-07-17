@@ -85,7 +85,7 @@ fn CalendarObj() -> Element {
     // Set display data on selected day change
     let _ = use_resource( move || {
         let selected_day = selected_day.read();
-        month_name.set(selected_day.format("%B").to_string());
+        month_name.set(selected_day.format("%B %Y").to_string());
         selected_week.set({
             let date = *selected_day;
             let weekday: u32 = date.weekday().num_days_from_monday();
@@ -99,15 +99,15 @@ fn CalendarObj() -> Element {
             class: "calendar",
             div {
                 class: "month",
-                h3 {
-                    {month_name.read().clone()}
-                }
                 button {
                     onclick: move |_|{
                         let month = selected_month.read().clone();
                         selected_month.set(previous_month(month));
                     },
                     "<-"
+                }
+                h3 {
+                    "{month_name.read().clone()}"
                 }
                 button {
                     onclick: move |_|{

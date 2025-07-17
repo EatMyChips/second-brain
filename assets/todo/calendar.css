@@ -13,11 +13,22 @@
 .month {
     flex-grow: 1;
     margin: 0 5%;
+
+    display: flex;
+    justify-content: space-between;
 }
 
 .month h3 {
     font-size: 2rem;
     margin: 2vh 0;
+}
+
+.month button {
+    font-size: 2rem;
+    margin: 2vh 0;
+    background-color: var(--accent2);
+    border-radius: 1rem;
+    border: 2px solid black;
 }
 
 .days {
@@ -27,11 +38,14 @@
     height: 100%;
     margin: 5% 5%;
     width: 90%;
+    gap: 0.2rem;
 }
 
 .day {
+    background-color: var(--accent2);
     text-align: center;
     border: 2px solid black;
+    border-radius: 1rem;
 }
 
 .day h3 {
@@ -39,12 +53,12 @@
     font-size: 1.5rem;
 }
 
-.inactive {
-    color: #6f736f;
+.day.inactive {
+    background-color: var(--accent2_cal_inactive);
 }
 
 .day.selected {
-    background-color: var(--accent2);
+    background-color: var(--accent2_cal_selected);
 }
 
 .clock {

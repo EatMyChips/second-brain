@@ -56,7 +56,7 @@
 .task {
     width: 98%;
     height: 3rem;
-    background-color: var(--accent1_dark);
+    background-color: var(--accent1);
     border-radius: 1.5rem;
 
     flex-shrink: 0;

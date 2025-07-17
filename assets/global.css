@@ -1,11 +1,35 @@
+/* initial colours
+--primary: #0c0e12;
+--primary2: #222020;
+
+--secondary: #ebfaee;
+
+--accent1: #111127FF;
+
+--accent2: #44A991;
+--accent2_cal_selected: #4DF1C9;
+--accent2_cal_inactive: #317A6A;
+*/
+
+/* green
+--primary: #061611;
+--primary2: #222020;
+--secondary: #ebfaee;
+--accent1: #1d665d;
+--accent2: #b2d98b;*/
+
 @import url('https://fonts.googleapis.com/css2?family=Inter&display=swap');
 :root {
     --primary: #0c0e12;
     --primary2: #222020;
+
     --secondary: #ebfaee;
-    --accent1: #402EBDFF;
-    --accent1_dark: rgb(17, 17, 39);
+
+    --accent1: #111127FF;
+
     --accent2: #44A991;
+    --accent2_cal_selected: #4DF1C9;
+    --accent2_cal_inactive: #317A6A;
 }
 
 body{
