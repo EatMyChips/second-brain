@@ -54,7 +54,7 @@ pub async fn put_tasks(task: Task) -> Result<(), ServerFnError> {
 }
 
 #[server]
-pub async fn delete_tasks(id: i32) -> Result<(), ServerFnError> {
+pub async fn delete_tasks(id: i64) -> Result<(), ServerFnError> {
     DB.with(|f| {
         f.execute("DELETE FROM todo WHERE id = ?1", params![id])?;
         Ok(())

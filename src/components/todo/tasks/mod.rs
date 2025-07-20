@@ -4,6 +4,7 @@ use dioxus::prelude::*;
 use dioxus::web::WebEventExt;
 use std::ops::Deref;
 use std::rc::Rc;
+use crate::props;
 
 const LISTS: Asset = asset!("/assets/todo/tasks.css");
 
@@ -39,9 +40,8 @@ pub fn List(props: ListProps) -> Element {
         };
         let week: String = selected_week.read().format("%d/%m/%Y").to_string();
 
-        // The closure must return an async block
+        // gets all task data
         async move {
-            log::info!("{week:?},{day:?}");
             tasks.set(Task::get_all(id, week, day).await);
         }
     });
@@ -125,9 +125,26 @@ pub fn List(props: ListProps) -> Element {
 
 #[component]
 fn TaskComp(id: i64) -> Element {
-    let task = use_future(move || {
+    let mut task_text = use_signal(|| "TEMP-TASK - This is an example task".to_string());
+
+    let mut task = use_signal(|| Task {id: 0, title: String::new(), info: String::new(), week: None, day: None, container_id: 0});
+
+    use_future(move || {
         let id = id.clone();
-        async move { Task::get(id).await }
+        async move {
+            task.set(Task::get(id).await);
+            task_text.set(task.read().clone().info)
+        }
+    });
+
+    let task_value = task.read().clone();
+    let _ = use_resource(move || {
+        let task_text = task_text.read().clone();
+        let task_value = task_value.clone();
+
+        async move {
+            task_value.update(String::new(), task_text).await;
+        }
     });
 
     rsx! {
@@ -139,8 +156,9 @@ fn TaskComp(id: i64) -> Element {
             }
             input {
                 class: "task-heading",
-                value: "SECOND-BRAIN - do the styling",
+                value: "{task_text}",
                 tabindex: "0",
+                oninput: move |event| task_text.set(event.value())
             }
         }
     }

@@ -10,12 +10,12 @@ pub struct NewTask {
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Task {
-    pub id: i32,
+    pub id: i64,
     pub title: String,
     pub info: String,
     pub week: Option<String>,
     pub day: Option<String>,
-    pub container_id: i32,
+    pub container_id: i64,
 }
 
 impl Task {
@@ -34,10 +34,10 @@ impl Task {
         get_task(id).await.expect("Panic").unwrap()
     }
 
-    pub async fn update(mut self, title: String, info: String) {
+    pub async fn update(mut self, title: String, info: String){
         self.title = title;
         self.info = info;
-        put_tasks(self).await.expect("Panic");
+        put_tasks(self.clone()).await.expect("Panic");
     }
 
     pub async fn delete(&self) {

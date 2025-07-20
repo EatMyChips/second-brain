@@ -114,7 +114,6 @@ pub fn Todo() -> Element {
                 if let Some(page) = scroll_page() {
                     let scroll_pos = page.as_web_event().scroll_left() as f64;
                     scroll_position.set(scroll_pos);
-                    // log::info!("{scroll_pos}");
                 }
             },
             div {
