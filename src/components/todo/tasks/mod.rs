@@ -1,5 +1,6 @@
 use super::{AppState, ScrollState};
 use crate::backend::props::Task;
+use crate::backend::frontend_link::tasks_link::{update, new, get, get_all, delete};
 use dioxus::prelude::*;
 use dioxus::web::WebEventExt;
 use std::ops::Deref;
@@ -42,7 +43,7 @@ pub fn List(props: ListProps) -> Element {
 
         // gets all task data
         async move {
-            tasks.set(Task::get_all(id, week, day).await);
+            tasks.set(get_all(id, week, day).await);
         }
     });
 
@@ -88,7 +89,7 @@ pub fn List(props: ListProps) -> Element {
                                     };
                                     let week = Some(selected_week.read().format("%d/%m/%Y").to_string());
 
-                                    tasks.write().push(Task::new(week, day, id).await);
+                                    tasks.write().push(new(week, day, id).await);
                                 }
                             }
                         },
@@ -99,7 +100,7 @@ pub fn List(props: ListProps) -> Element {
                         div{
                             class: "tasks",
                             for id in tasks.read().clone() {
-                                TaskComp {id},
+                                TaskComp {id, tasks},
                             }
                         }
                     }
@@ -124,26 +125,26 @@ pub fn List(props: ListProps) -> Element {
 }
 
 #[component]
-fn TaskComp(id: i64) -> Element {
-    let mut task_text = use_signal(|| "TEMP-TASK - This is an example task".to_string());
+fn TaskComp(id: i64, tasks: Signal<Vec<i64>>) -> Element {
+    let mut task_text = use_signal(|| "".to_string());
+    let mut tasks = tasks;
 
     let mut task = use_signal(|| Task {id: 0, title: String::new(), info: String::new(), week: None, day: None, container_id: 0});
 
     use_future(move || {
         let id = id.clone();
         async move {
-            task.set(Task::get(id).await);
-            task_text.set(task.read().clone().info)
+            let fetched_task = get(id).await;
+            task.set(fetched_task.clone());
+            task_text.set(fetched_task.info.clone());
         }
     });
 
-    let task_value = task.read().clone();
     let _ = use_resource(move || {
         let task_text = task_text.read().clone();
-        let task_value = task_value.clone();
 
         async move {
-            task_value.update(String::new(), task_text).await;
+            update(id, String::new(), task_text).await;
         }
     });
 
@@ -159,6 +160,22 @@ fn TaskComp(id: i64) -> Element {
                 value: "{task_text}",
                 tabindex: "0",
                 oninput: move |event| task_text.set(event.value())
+            }
+            button {
+                class: "task-delete",
+                onclick: move |event| {
+                    let task_list = tasks.read().clone();
+                    async move{
+                        delete(id).await;
+                        tasks.set(
+                            task_list.iter()
+                                .cloned()
+                                .filter(|i| i != &id)
+                                .collect()
+                        );
+                    }
+                },
+                "X"
             }
         }
     }

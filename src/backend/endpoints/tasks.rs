@@ -36,17 +36,14 @@ pub async fn post_tasks(task: NewTask) -> Result<Option<i64>, ServerFnError> {
 }
 
 #[server]
-pub async fn put_tasks(task: Task) -> Result<(), ServerFnError> {
+pub async fn put_tasks(id: i64, title: String, info: String) -> Result<(), ServerFnError> {
     DB.with(|f| {
         f.execute(
-            "UPDATE todo SET title = ?1, info = ?2, weeks = ?3, days = ?4, container_id = ?5 WHERE id = ?6",
+            "UPDATE todo SET title = ?1, info = ?2 WHERE id = ?3",
             params![
-                task.title,
-                task.info,
-                task.week.as_deref(),
-                task.day.as_deref(),
-                task.container_id,
-                task.id,
+                title,
+                info,
+                id,
             ],
         )?;
         Ok(())
