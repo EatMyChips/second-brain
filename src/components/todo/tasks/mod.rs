@@ -131,7 +131,7 @@ fn TaskComp(id: i64, tasks: Signal<Vec<i64>>) -> Element {
 
     let mut task = use_signal(|| Task {id: 0, title: String::new(), info: String::new(), week: None, day: None, container_id: 0});
 
-    use_future(move || {
+    let loaded = use_resource(move || {
         let id = id.clone();
         async move {
             let fetched_task = get(id).await;
@@ -140,13 +140,17 @@ fn TaskComp(id: i64, tasks: Signal<Vec<i64>>) -> Element {
         }
     });
 
-    let _ = use_resource(move || {
-        let task_text = task_text.read().clone();
 
-        async move {
-            update(id, String::new(), task_text).await;
-        }
-    });
+    if let Some(_) = loaded.read_unchecked().deref() {
+        let _ = use_resource(move || {
+            let task_text = task_text.read().clone();
+
+            async move {
+                update(id, task_text).await;
+            }
+        });
+    }
+
 
     rsx! {
         div {
@@ -154,6 +158,11 @@ fn TaskComp(id: i64, tasks: Signal<Vec<i64>>) -> Element {
             input {
                 class: "check",
                 type: "checkbox",
+            }
+            if task.read().title != String::new(){
+                h4 {
+                    "{task.read().title}"
+                }
             }
             input {
                 class: "task-heading",
@@ -193,10 +202,6 @@ fn ListHeader(props: ListHeaderProps) -> Element {
         div{
             class: "header",
             h2 { {props.title} }
-
-            // if props.id == "todays-todo"{
-            //     DailyTaskSwitcher { }
-            // }
         }
     }
 }

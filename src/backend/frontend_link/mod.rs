@@ -17,8 +17,8 @@ pub mod tasks_link {
         get_task(id).await.expect("Panic").unwrap()
     }
 
-    pub async fn update(id: i64, title: String, info: String){
-        put_tasks(id, title, info).await.expect("Panic");
+    pub async fn update(id: i64, info: String){
+        put_tasks(id, info).await.expect("Panic");
     }
 
     pub async fn delete(id: i64) {
