@@ -17,6 +17,7 @@ thread_local! {
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 title TEXT NOT NULL,
                 info TEXT NOT NULL,
+                completed BOOL,
                 weeks DATE,
                 days DATE,
                 container_id INTEGER NOT NULL,

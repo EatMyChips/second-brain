@@ -98,7 +98,7 @@ pub fn Todo() -> Element {
     });
 
     rsx! {
-        document::Stylesheet { href: TASKS}
+        document::Stylesheet { href: TASKS }
 
         Header {}
         //WeeklyTaskSwitcher {  }

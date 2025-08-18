@@ -1,5 +1,5 @@
 pub mod tasks_link {
-    use crate::{delete_tasks, get_task, get_tasks, post_tasks, put_tasks};
+    use crate::{delete_tasks, get_task, get_tasks, post_tasks, put_tasks, put_completed};
     use crate::backend::props::{Task, NewTask};
 
     pub async fn new(week: Option<String>, day: Option<String>, id: String) -> i64 {
@@ -29,5 +29,9 @@ pub mod tasks_link {
         let out = get_tasks(title, week, day).await.expect("Panic");
         log::info!("{out:?}");
         out
+    }
+
+    pub async fn update_completed(id: i64, completed: bool) {
+        put_completed(id, completed).await.expect("Panic");
     }
 }

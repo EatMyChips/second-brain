@@ -21,12 +21,13 @@ pub async fn post_tasks(task: NewTask) -> Result<Option<i64>, ServerFnError> {
         };
 
         f.execute(
-            "INSERT INTO todo (title, info, weeks, days, container_id) VALUES (?1, ?2, ?3, ?4, ?5)",
+            "INSERT INTO todo (title, info, weeks, days, completed, container_id) VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
             params![
                 empty_string,
                 empty_string,
                 task.week.as_deref(),
                 task.day.as_deref(),
+                false,
                 container_id,
             ],
         )?;
@@ -97,7 +98,7 @@ pub async fn get_tasks(
 pub async fn get_task(id: i64) -> Result<Option<Task>, ServerFnError> {
     DB.with(|f| {
         let mut stmt = f.prepare(
-            "SELECT id, title, info, weeks, days, container_id
+            "SELECT id, title, info, completed, weeks, days, container_id
              FROM todo
              WHERE id = ?1",
         )?;
@@ -108,12 +109,27 @@ pub async fn get_task(id: i64) -> Result<Option<Task>, ServerFnError> {
                 id: row.get(0)?,
                 title: row.get(1)?,
                 info: row.get(2)?,
-                week: row.get(3)?,
-                day: row.get(4)?,
-                container_id: row.get(5)?,
+                completed: row.get(3)?,
+                week: row.get(4)?,
+                day: row.get(5)?,
+                container_id: row.get(6)?,
             };
             return Ok(Some(task));
         }
         Ok(None)
+    })
+}
+
+#[server]
+pub async fn put_completed(id: i64, completed: bool) -> Result<(), ServerFnError> {
+    DB.with(|f| {
+        f.execute(
+            "UPDATE todo SET completed = ?1 WHERE id = ?2",
+            params![
+                completed,
+                id,
+            ],
+        )?;
+        Ok(())
     })
 }

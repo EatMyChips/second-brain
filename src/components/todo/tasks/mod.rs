@@ -1,10 +1,11 @@
 use super::{AppState, ScrollState};
 use crate::backend::props::Task;
-use crate::backend::frontend_link::tasks_link::{update, new, get, get_all, delete};
+use crate::backend::frontend_link::tasks_link::{update, new, get, get_all, delete, update_completed};
 use dioxus::prelude::*;
 use dioxus::web::WebEventExt;
 use std::ops::Deref;
 use std::rc::Rc;
+use dioxus::html::completions::CompleteWithBraces::feTile;
 use crate::props;
 
 const LISTS: Asset = asset!("/assets/todo/tasks.css");
@@ -107,16 +108,20 @@ pub fn List(props: ListProps) -> Element {
                 }
             },
             None =>  rsx! {
+                document::Stylesheet { href: LISTS}
                 div{
-                    class: "element list",
+                    class: "element daily",
                     id: id.clone(),
                     tabindex: "0",
                     ListHeader {
                         title: props.title,
                         id: id.clone(),
                     },
-                    h3 {
-                        "Loading..."
+                    div {
+                        class: "task",
+                        h3 {
+                            "Loading..."
+                        }
                     }
                 }
             }
@@ -127,19 +132,18 @@ pub fn List(props: ListProps) -> Element {
 #[component]
 fn TaskComp(id: i64, tasks: Signal<Vec<i64>>) -> Element {
     let mut task_text = use_signal(|| "".to_string());
-    let mut tasks = tasks;
-
-    let mut task = use_signal(|| Task {id: 0, title: String::new(), info: String::new(), week: None, day: None, container_id: 0});
+    let mut task_title = use_signal(|| "".to_string());
+    let mut task_completed = use_signal(|| false);
 
     let loaded = use_resource(move || {
         let id = id.clone();
         async move {
             let fetched_task = get(id).await;
-            task.set(fetched_task.clone());
             task_text.set(fetched_task.info.clone());
+            task_title.set(fetched_task.title.clone());
+            task_completed.set(fetched_task.completed.clone());
         }
     });
-
 
     if let Some(_) = loaded.read_unchecked().deref() {
         let _ = use_resource(move || {
@@ -147,6 +151,14 @@ fn TaskComp(id: i64, tasks: Signal<Vec<i64>>) -> Element {
 
             async move {
                 update(id, task_text).await;
+            }
+        });
+
+        let _ = use_resource(move || {
+            let task_completed = task_completed.read().clone();
+
+            async move {
+                update_completed(id, task_completed).await;
             }
         });
     }
@@ -158,13 +170,17 @@ fn TaskComp(id: i64, tasks: Signal<Vec<i64>>) -> Element {
             input {
                 class: "check",
                 type: "checkbox",
-            }
-            if task.read().title != String::new(){
-                h4 {
-                    "{task.read().title}"
+                checked: *task_completed.read(),
+                onchange: move |evt| {
+                    task_completed.set(evt.value() == "true");
                 }
             }
-            input {
+            if *task_title.read() != String::new(){
+                h4 {
+                    "{task_title.read()}"
+                }
+            }
+            textarea {
                 class: "task-heading",
                 value: "{task_text}",
                 tabindex: "0",

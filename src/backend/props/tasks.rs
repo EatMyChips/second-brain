@@ -12,6 +12,7 @@ pub struct Task {
     pub id: i64,
     pub title: String,
     pub info: String,
+    pub completed: bool,
     pub week: Option<String>,
     pub day: Option<String>,
     pub container_id: i64,
