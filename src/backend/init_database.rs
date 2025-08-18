@@ -24,6 +24,19 @@ thread_local! {
                 FOREIGN KEY (container_id) REFERENCES containers(id)
             );
 
+            CREATE TABLE IF NOT EXISTS rewards (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                title TEXT NOT NULL
+            );
+
+            CREATE TABLE IF NOT EXISTS rewards_checks (
+                reward_id INTEGER NOT NULL,
+                week_date DATE NOT NULL,
+                checks TEXT,
+                PRIMARY KEY (reward_id, week_date),
+                FOREIGN KEY (reward_id) REFERENCES rewards(id)
+            );
+
             -- Insert sample data
             -- INSERT OR IGNORE INTO containers (id, title) VALUES (1, 'todays-tasks'), (2, 'professional'), (3, 'personal');
             ",

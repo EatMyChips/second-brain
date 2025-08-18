@@ -1,0 +1,9 @@
+.checks {
+    display: flex;
+    flex-direction: column;
+}
+
+.challenge {
+    display: flex;
+}
+
