@@ -1,9 +1,33 @@
 .checks {
     display: flex;
     flex-direction: column;
+    align-items: center;
+    background-color: var(--accent1);
+    border-radius: 2rem;
+    height: 100%;
 }
 
 .challenge {
     display: flex;
+    justify-content: space-between;
+    width: 80%;
 }
 
+.check-obj {
+    display: flex;
+    justify-content: space-between;
+
+    width: 70%;
+}
+
+.check-obj h4{
+    margin: 2rem 0 1rem;
+}
+
+.title {
+    font-size: 0.8rem;
+}
+
+.check {
+ margin: 0;
+}

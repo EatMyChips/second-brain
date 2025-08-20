@@ -12,7 +12,7 @@
 .page {
     height: 100%;
     flex-shrink: 0;
-    padding: 6rem 0;
+    padding: 5rem 0;
     box-sizing: border-box;
 }
 

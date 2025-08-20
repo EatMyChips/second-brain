@@ -26,9 +26,7 @@ pub mod tasks_link {
     }
 
     pub async fn get_all(title: String, week: String, day: Option<String>) -> Vec<i64> {
-        let out = get_tasks(title, week, day).await.expect("Panic");
-        log::info!("{out:?}");
-        out
+        get_tasks(title, week, day).await.expect("Panic")
     }
 
     pub async fn update_completed(id: i64, completed: bool) {

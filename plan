@@ -1,0 +1,43 @@
+# Frontend
+  - Page flow
+    - Add rewards section
+    - Change values to match new page size
+    - Implement easy scroll snapping technique
+        - Make rewards section shorter and task section shorter depending on which section is selected
+
+  - Rewards
+    - Checkboxes
+      - Display Checkboxes
+      - Display days
+      - Sort out styling
+      - Create new check
+      - Edit check
+      - Delete check
+      - Add streak for each check
+    - Rewards
+      -
+
+  - Calendar
+    - Clock Y
+      - Display time Y
+      - Update regularly Y
+    - Calendar object
+      - Change dates Y
+      - Display week days Y
+      - Display month and year Y
+      - Fill in calendar Y
+      - Display days
+      - Add tags for events
+
+  - Tasks
+    - Task object
+      - Add Tasks Y
+      - Edit Tasks Y
+      - Remove Tasks
+        - Removes the wrong one
+      - Move Tasks
+        - Give order
+        - Alter order
+
+
+# Backend
