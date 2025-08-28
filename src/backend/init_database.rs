@@ -1,8 +1,8 @@
 use rusqlite::{params, Connection, Result as SqlResult, ToSql};
 
 thread_local! {
-    pub static DB: rusqlite::Connection = {
-        let conn = rusqlite::Connection::open("tasks.db").expect("Failed to open database");
+    pub static DB: Connection = {
+        let conn = Connection::open("tasks.db").expect("Failed to open database");
         println!("Database connection created!");
         conn.execute_batch(
             "
