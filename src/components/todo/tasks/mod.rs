@@ -192,6 +192,7 @@ fn TaskComp(id: i64, tasks: Signal<Vec<i64>>) -> Element {
                     let task_list = tasks.read().clone();
                     async move{
                         delete(id).await;
+                        /* TODO:: fix not deleting the right one visually */
                         tasks.set(
                             task_list.iter()
                                 .cloned()
