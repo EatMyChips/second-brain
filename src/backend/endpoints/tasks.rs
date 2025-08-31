@@ -2,12 +2,12 @@ use dioxus::prelude::*;
 
 #[cfg(feature = "server")]
 use super::super::init_database::DB;
-use super::super::props::{NewTask, Task};
+use super::super::props::{TaskPayload, TaskResponse};
 #[cfg(feature = "server")]
 use rusqlite::{params, Connection, Result as SqlResult, ToSql};
 
 #[server]
-pub async fn post_tasks(task: NewTask) -> Result<Option<i64>, ServerFnError> {
+pub async fn post_tasks(task: TaskPayload) -> Result<Option<i64>, ServerFnError> {
     let empty_string: String = String::new();
     DB.with(|f| {
         // First, look up the container ID
@@ -63,7 +63,7 @@ pub async fn get_tasks(
     container_title: String,
     current_week: String,
     current_day: Option<String>,
-) -> Result<Vec<i64>, ServerFnError> {
+) -> Result<Vec<TaskResponse>, ServerFnError> {
     DB.with(|f| {
         let mut stmt;
         let mut rows;
@@ -71,14 +71,14 @@ pub async fn get_tasks(
         // Use JOIN to fetch todo based on the container title
         if let Some(day) = &current_day {
             stmt = f.prepare(
-                "SELECT t.id FROM todo t
+                "SELECT t.id, t.title, t.info, t.completed FROM todo t
                  JOIN containers c ON t.container_id = c.id
                  WHERE c.title = ?1 AND t.weeks = ?2 AND t.days = ?3",
             )?;
             rows = stmt.query(params![container_title, current_week, current_day])?;
         } else {
             stmt = f.prepare(
-                "SELECT t.id FROM todo t
+                "SELECT t.id, t.title, t.info, t.completed FROM todo t
                  JOIN containers c ON t.container_id = c.id
                  WHERE c.title = ?1 AND t.weeks = ?2 AND t.days IS NULL",
             )?;
@@ -87,32 +87,34 @@ pub async fn get_tasks(
 
         let mut tasks = Vec::new();
         while let Some(row) = rows.next()? {
-            let id: i64 = row.get(0)?;
-            tasks.push(id);
+            let task = TaskResponse {
+                id: row.get(0)?,
+                title: row.get(1)?,
+                info: row.get(2)?,
+                completed: row.get(3)?,
+            };
+            tasks.push(task);
         }
         Ok(tasks)
     })
 }
 
 #[server]
-pub async fn get_task(id: i64) -> Result<Option<Task>, ServerFnError> {
+pub async fn get_task(id: i64) -> Result<Option<TaskResponse>, ServerFnError> {
     DB.with(|f| {
         let mut stmt = f.prepare(
-            "SELECT id, title, info, completed, weeks, days, container_id
+            "SELECT id, title, info, completed
              FROM todo
              WHERE id = ?1",
         )?;
         let mut rows = stmt.query(params![id])?;
 
         if let Some(row) = rows.next()? {
-            let task = Task {
+            let task = TaskResponse {
                 id: row.get(0)?,
                 title: row.get(1)?,
                 info: row.get(2)?,
                 completed: row.get(3)?,
-                week: row.get(4)?,
-                day: row.get(5)?,
-                container_id: row.get(6)?,
             };
             return Ok(Some(task));
         }

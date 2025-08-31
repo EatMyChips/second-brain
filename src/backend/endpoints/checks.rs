@@ -4,7 +4,6 @@ use dioxus::prelude::*;
 use super::super::init_database::DB;
 #[cfg(feature = "server")]
 use rusqlite::{params, Connection, Result as SqlResult, ToSql};
-use crate::NewTask;
 
 /* Check object endpoints */
 #[server]
@@ -23,7 +22,9 @@ pub async fn post_new_check() -> Result<Option<i64>, ServerFnError> {
 
 #[server]
 pub async fn put_check_info() -> Result<Option<i64>, ServerFnError> {
-    Ok(Some(1))
+    DB.with(|f| {
+        Ok(Some(1))
+    })
 }
 
 #[server]

@@ -1,6 +1,6 @@
 use super::{AppState, ScrollState};
-use crate::backend::props::Task;
-use crate::backend::frontend_link::tasks_link::{update, new, get, get_all, delete, update_completed};
+use crate::backend::props::TaskResponse;
+use crate::backend::frontend_link::tasks_link::{update, new, get_all, delete, update_completed};
 use dioxus::prelude::*;
 use dioxus::web::WebEventExt;
 use std::ops::Deref;
@@ -16,6 +16,7 @@ pub struct ListProps {
     title: String,
 }
 
+/* TODO:: Make tasks get data with only one query */
 #[component]
 pub fn List(props: ListProps) -> Element {
     // Date signals
@@ -25,7 +26,7 @@ pub fn List(props: ListProps) -> Element {
 
     let mut task_bar: Signal<Option<Rc<MountedData>>> = use_signal(|| None);
 
-    let mut tasks = use_signal(|| vec![]);
+    let mut tasks: Signal<Vec<TaskResponse>> = use_signal(|| vec![]);
 
     // Props data
     let id = props.id.clone();
@@ -67,6 +68,24 @@ pub fn List(props: ListProps) -> Element {
 
     rsx! {
         match tasks_loading.read_unchecked().deref() {
+            None =>  rsx! {
+                document::Stylesheet { href: LISTS}
+                div{
+                    class: "element daily",
+                    id: id.clone(),
+                    tabindex: "0",
+                    ListHeader {
+                        title: props.title,
+                        id: id.clone(),
+                    },
+                    div {
+                        class: "task",
+                        h3 {
+                            "Loading..."
+                        }
+                    }
+                }
+            },
             Some(_) => {
                 rsx! {
                     document::Stylesheet { href: LISTS}
@@ -100,27 +119,9 @@ pub fn List(props: ListProps) -> Element {
                         }
                         div{
                             class: "tasks",
-                            for id in tasks.read().clone() {
-                                TaskComp {id, tasks},
+                            for task in tasks.read().clone() {
+                                TaskComp {task, tasks},
                             }
-                        }
-                    }
-                }
-            },
-            None =>  rsx! {
-                document::Stylesheet { href: LISTS}
-                div{
-                    class: "element daily",
-                    id: id.clone(),
-                    tabindex: "0",
-                    ListHeader {
-                        title: props.title,
-                        id: id.clone(),
-                    },
-                    div {
-                        class: "task",
-                        h3 {
-                            "Loading..."
                         }
                     }
                 }
@@ -130,39 +131,27 @@ pub fn List(props: ListProps) -> Element {
 }
 
 #[component]
-fn TaskComp(id: i64, tasks: Signal<Vec<i64>>) -> Element {
-    let mut task_text = use_signal(|| "".to_string());
-    let mut task_title = use_signal(|| "".to_string());
-    let mut task_completed = use_signal(|| false);
+fn TaskComp(task: TaskResponse, tasks: Signal<Vec<TaskResponse>>) -> Element {
+    let id = task.id;
+    let mut task_text = use_signal(|| task.info);
+    let task_title = use_signal(|| task.title);
+    let mut task_completed = use_signal(|| task.completed);
 
-    let loaded = use_resource(move || {
-        let id = id.clone();
+    let _ = use_resource(move || {
+            let task_text = task_text.read().clone();
+
         async move {
-            let fetched_task = get(id).await;
-            task_text.set(fetched_task.info.clone());
-            task_title.set(fetched_task.title.clone());
-            task_completed.set(fetched_task.completed.clone());
+            update(id, task_text).await;
         }
     });
 
-    if let Some(_) = loaded.read_unchecked().deref() {
-        let _ = use_resource(move || {
-            let task_text = task_text.read().clone();
+    let _ = use_resource(move || {
+        let task_completed = task_completed.read().clone();
 
-            async move {
-                update(id, task_text).await;
-            }
-        });
-
-        let _ = use_resource(move || {
-            let task_completed = task_completed.read().clone();
-
-            async move {
-                update_completed(id, task_completed).await;
-            }
-        });
-    }
-
+        async move {
+            update_completed(id, task_completed).await;
+        }
+    });
 
     rsx! {
         div {
@@ -196,7 +185,7 @@ fn TaskComp(id: i64, tasks: Signal<Vec<i64>>) -> Element {
                         tasks.set(
                             task_list.iter()
                                 .cloned()
-                                .filter(|i| i != &id)
+                                .filter(|i| i.id != id)
                                 .collect()
                         );
                     }
@@ -220,13 +209,5 @@ fn ListHeader(props: ListHeaderProps) -> Element {
             class: "header",
             h2 { {props.title} }
         }
-    }
-}
-
-fn string_split(input: String) -> Vec<String> {
-    if input.contains('~') {
-        input.split('~').map(|s| s.to_string()).collect()
-    } else {
-        vec!["".to_string(), input]
     }
 }
