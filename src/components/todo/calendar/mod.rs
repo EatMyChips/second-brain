@@ -1,6 +1,6 @@
 use std::cmp::PartialEq;
 use crate::components::todo::{AppState};
-use chrono::{DateTime, Datelike, Duration, Local, NaiveDate, TimeZone, Timelike, Weekday};
+use chrono::{Datelike, Duration, Local, NaiveDate, TimeZone, Timelike, Weekday};
 use dioxus::prelude::*;
 use futures_util::stream::StreamExt;
 use gloo_timers::future::IntervalStream;
@@ -40,7 +40,6 @@ fn CalendarObj() -> Element {
     let mut selected_week = use_context::<AppState>().selected_week;
     let mut selected_day = use_context::<AppState>().selected_day;
     let current_month = use_context::<AppState>().current_month;
-    let current_week = use_context::<AppState>().current_week;
     let current_day = use_context::<AppState>().current_day;
 
     // Instantiate display data

@@ -5,8 +5,6 @@ use dioxus::prelude::*;
 use dioxus::web::WebEventExt;
 use std::ops::Deref;
 use std::rc::Rc;
-use dioxus::html::completions::CompleteWithBraces::feTile;
-use crate::props;
 
 const LISTS: Asset = asset!("/assets/todo/tasks.css");
 

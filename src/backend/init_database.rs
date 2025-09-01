@@ -32,9 +32,9 @@ thread_local! {
             CREATE TABLE IF NOT EXISTS rewards_checks (
                 reward_id INTEGER NOT NULL,
                 week_date DATE NOT NULL,
-                checks TEXT,
+                checks TEXT NOT NULL,
                 PRIMARY KEY (reward_id, week_date),
-                FOREIGN KEY (reward_id) REFERENCES rewards(id)
+                FOREIGN KEY (reward_id) REFERENCES rewards(id) ON DELETE CASCADE
             );
 
             -- Insert sample data

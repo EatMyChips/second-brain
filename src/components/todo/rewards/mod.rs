@@ -25,7 +25,7 @@ fn WeekDays() -> Element {
             class: "challenge",
             h4 {
                 class: "title",
-
+                "Days"
             }
             div {
                 class: "check-obj",
@@ -55,72 +55,33 @@ fn WeekDays() -> Element {
     }
 }
 
+const DAYS: [&str; 7] = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
+
 #[component]
-fn CheckBox( id: i32) -> Element {
-    let mut checked = use_signal(|| vec![0,0,0,0,0,0,0]);
+fn CheckBox(id: i32) -> Element {
+    // Switch from Vec<i32> to a fixed-size boolean array for clarity and type safety
+    let mut checked = use_signal(|| [false; 7]);
     rsx! {
         div {
             class: "challenge",
             h4 {
                 class: "title",
-                "{id}.Take out bins"
+                "{id}. Take out bins"
             }
             div {
                 class: "check-obj",
-                input {
-                    class: "check",
-                    id: "mon",
-                    type: "checkbox",
-                    onchange: move |evt| {
-                        checked.write()[0] = (evt.value() == "true") as i32;
-                    }
-                }
-                input {
-                    class: "check",
-                    id: "tue",
-                    type: "checkbox",
-                    onchange: move |evt| {
-                        checked.write()[1] = (evt.value() == "true") as i32;
-                    }
-                }
-                input {
-                    class: "check",
-                    id: "wed",
-                    type: "checkbox",
-                    onchange: move |evt| {
-                        checked.write()[2] = (evt.value() == "true") as i32;
-                    }
-                }
-                input {
-                    class: "check",
-                    id: "thu",
-                    type: "checkbox",
-                    onchange: move |evt| {
-                        checked.write()[3] = (evt.value() == "true") as i32;
-                    }
-                }
-                input {
-                    class: "check",
-                    id: "fri",
-                    type: "checkbox",
-                    onchange: move |evt| {
-                        checked.write()[4] = (evt.value() == "true") as i32;
-                    }
-                }
-                input {
-                    class: "check",
-                    id: "sat",
-                    type: "checkbox",
-                    onchange: move |evt| {
-                        checked.write()[5] = (evt.value() == "true") as i32;
-                    }
-                }
-                input {
-                    class: "check",
-                    id: "sun",
-                    type: "checkbox",
-                    onchange: move |evt| {
-                        checked.write()[6] = (evt.value() == "true") as i32;
+                // Loop over days to avoid duplicate IDs and boilerplate
+                for (idx, day) in DAYS.iter().enumerate() {
+                    input {
+                        class: "check",
+                        id: "{id}-{day}",
+                        r#type: "checkbox",
+                        // Controlled input to keep UI and state in sync
+                        checked: checked.read()[idx],
+                        onchange: move |_| {
+                            let mut w = checked.write();
+                            w[idx] = !w[idx];
+                        }
                     }
                 }
             }

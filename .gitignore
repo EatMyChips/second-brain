@@ -27,6 +27,10 @@ Thumbs.db
 
 # === Database files ===
 tasks.db
+todo.db
+*.db
+*.db-shm
+*.db-wal
 
 # === Environment files (optional) ===
 # Uncomment if using dotenv or storing secrets locally
